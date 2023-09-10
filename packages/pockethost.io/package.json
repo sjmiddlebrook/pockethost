@@ -29,7 +29,7 @@
   "type": "module",
   "dependencies": {
     "@dansvel/vite-plugin-markdown": "^2.0.5",
-    "@microsoft/fetch-event-source": "https://github.com/Almar/fetch-event-source.git#pr/make_web_worker_friendly",
+    "@microsoft/fetch-event-source": "git@github.com:Almar/fetch-event-source.git#pr/make_web_worker_friendly",
     "@pockethost/common": "0.0.1",
     "@s-libs/micro-dash": "^15.1.0",
     "@types/bootstrap": "^5.2.6",
