@@ -4,14 +4,14 @@
   import { Line } from 'svelte-chartjs'
 
   import {
-    CategoryScale,
-    Chart as ChartJS,
-    Legend,
-    LineElement,
-    LinearScale,
-    PointElement,
-    Title,
-    Tooltip,
+      CategoryScale,
+      Chart as ChartJS,
+      Legend,
+      LineElement,
+      LinearScale,
+      PointElement,
+      Title,
+      Tooltip,
   } from 'chart.js'
 
   ChartJS.register(

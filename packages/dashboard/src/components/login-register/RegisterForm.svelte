@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { slide } from 'svelte/transition'
   import { handleInstanceGeneratorWidget } from '$util/database'
   import { generateSlug } from 'random-word-slugs'
+  import { slide } from 'svelte/transition'
 
   export let isProcessing: boolean = false
   export let isSignUpView: boolean = false

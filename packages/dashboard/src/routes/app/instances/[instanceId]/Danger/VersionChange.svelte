@@ -3,8 +3,8 @@
   import CardHeader from '$components/cards/CardHeader.svelte'
   import { DOCS_URL } from '$src/env'
   import { client } from '$src/pocketbase'
-  import { instance } from '../store'
   import { slide } from 'svelte/transition'
+  import { instance } from '../store'
 
   $: ({ id, maintenance, version } = $instance)
 

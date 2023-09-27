@@ -7,8 +7,7 @@
 - `sudo ./scripts/prod.sh`
 - Finalize readme
 - `yarn version --patch`
-- `sudo ./scripts/pm2.sh`
-- `sudo crontab -e`
+- `git push`
 - Create new discussion in PocketHost and PocketBase
 
 ## Detailed steps

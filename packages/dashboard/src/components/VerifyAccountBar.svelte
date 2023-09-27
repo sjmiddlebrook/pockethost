@@ -1,7 +1,7 @@
 <script lang="ts">
   import { handleResendVerificationEmail } from '$util/database'
-  import { slide } from 'svelte/transition'
   import { isUserLoggedIn, isUserVerified } from '$util/stores'
+  import { slide } from 'svelte/transition'
 
   let isButtonProcessing: boolean = false
   let formError: string = ''

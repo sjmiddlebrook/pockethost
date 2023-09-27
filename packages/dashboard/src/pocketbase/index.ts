@@ -1,8 +1,8 @@
 import { MOTHERSHIP_URL } from '$src/env'
 import { LoggerService } from '@pockethost/common'
 import {
-  createPocketbaseClient,
-  type PocketbaseClient,
+    createPocketbaseClient,
+    type PocketbaseClient
 } from './PocketbaseClient'
 
 export const client = (() => {

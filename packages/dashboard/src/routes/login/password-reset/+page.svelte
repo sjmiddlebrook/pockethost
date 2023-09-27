@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { slide } from 'svelte/transition'
   import { handleUnauthenticatedPasswordReset } from '$util/database'
+  import { slide } from 'svelte/transition'
 
   let email: string = ''
   let formError: string = ''
