@@ -16,6 +16,8 @@ Instances are placed in hibernation after 5 seconds of idle time.
 
 ## Usage Metering
 
+_Note: Usage Metering is not active until PocketHost reaches v1.0. There is no planned timeline for when or if PocketHost will reach v1.0_
+
 The free tier of PocketHost provides 100 _active minutes_ per month.
 
 ![](2023-01-05-23-02-49.png)
@@ -44,10 +46,11 @@ The PocketHost dashboard also provides a handy link to do this.
 
 ## Secrets
 
-Instance secrets are defined as environment variables when a [PocketHost Cloud Function Deno worker](broken-reference) is launched. Every secret you specify here will be made available as an environment variable to the Deno process:
+Instance secrets are exposed as environment variables when your `pocketbase` executable launches. Every secret you specify here will be made available as an environment variable to the `pocketbase` process.
 
 ```ts
-const MY_SECRET = Deno.env.get('MY_SECRET') || ''
+// pb_hooks
+$app.getEnv('FOO')
 ```
 
 ## Realtime log

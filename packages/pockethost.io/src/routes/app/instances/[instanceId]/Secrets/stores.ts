@@ -23,14 +23,14 @@ function formatInput(input: SecretsArray): SecretsArray {
     .map(({ name, value }, index) => ({
       name,
       value,
-      color: colorScale(index.toString())
+      color: colorScale(index.toString()),
     }))
 }
 
 const sanitize = (item: SecretItem) => {
   return {
     name: item.name.toUpperCase().trim(),
-    value: item.value.trim()
+    value: item.value.trim(),
   }
 }
 
@@ -40,24 +40,20 @@ function createItems(initialItems: SecretsArray) {
 
   const { subscribe, set, update } = writable(initialItems)
 
-  return {
+  const api = {
     subscribe,
     clear: () => {
       set([])
     },
     // create: add an object for the item at the end of the store's array
-    create: (item: SecretItem) => {
-      dbg(`Creating`, item)
+    upsert: (item: SecretItem) => {
+      dbg(`Upserting`, item)
       const { name, value } = sanitize(item)
       return update((n) => {
-        n = [
-          ...n,
-          {
-            name,
-            value
-          }
-        ]
-        return formatInput(n)
+        return formatInput([
+          ...n.filter((i) => i.name !== name),
+          { name, value },
+        ])
       })
     },
 
@@ -69,8 +65,10 @@ function createItems(initialItems: SecretsArray) {
         n = [...n.slice(0, index), ...n.slice(index + 1)]
         return formatInput(n)
       })
-    }
+    },
   }
+
+  return api
 }
 
 export const items = createItems(formatInput([]))

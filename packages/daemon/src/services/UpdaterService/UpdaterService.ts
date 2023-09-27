@@ -1,13 +1,12 @@
 import { downloadAndExtract, smartFetch } from '$util'
 import {
+  SingletonBaseConfig,
   createCleanupManager,
   createTimerManager,
   mkSingleton,
-  SingletonBaseConfig,
 } from '@pockethost/common'
 import { keys } from '@s-libs/micro-dash'
 import { chmodSync, existsSync } from 'fs'
-import { type } from 'os'
 import { join } from 'path'
 import { maxSatisfying, rsort } from 'semver'
 
@@ -39,7 +38,7 @@ export const updaterService = mkSingleton(
     const cm = createCleanupManager()
     const tm = createTimerManager({})
 
-    const osName = type().toLowerCase()
+    const osName = 'linux' // type().toLowerCase()
     const cpuArchitecture = process.arch === 'x64' ? 'amd64' : process.arch
 
     dbg({ osName, cpuArchitecture })
@@ -49,7 +48,7 @@ export const updaterService = mkSingleton(
     const check = async () => {
       const releases = await smartFetch<Releases>(
         `https://api.github.com/repos/pocketbase/pocketbase/releases?per_page=100`,
-        join(cachePath, `releases.json`)
+        join(cachePath, `releases.json`),
       )
       // dbg({ releases })
 
@@ -77,7 +76,7 @@ export const updaterService = mkSingleton(
       await Promise.all(promises)
       if (keys(binPaths).length === 0) {
         throw new Error(
-          `No version found, probably mismatched architecture and OS (${osName}/${cpuArchitecture})`
+          `No version found, probably mismatched architecture and OS (${osName}/${cpuArchitecture})`,
         )
       }
       maxVersion = `~${rsort(keys(binPaths))[0]}`
@@ -94,7 +93,7 @@ export const updaterService = mkSingleton(
       const version = maxSatisfying(keys(binPaths), semVer)
       if (!version)
         throw new Error(
-          `No version satisfies ${semVer} (${keys(binPaths).join(', ')})`
+          `No version satisfies ${semVer} (${keys(binPaths).join(', ')})`,
         )
       const binPath = binPaths[version]
       if (!binPath) throw new Error(`binPath for ${version} not found`)
@@ -109,5 +108,5 @@ export const updaterService = mkSingleton(
       getVersion,
       shutdown: async () => {},
     }
-  }
+  },
 )
