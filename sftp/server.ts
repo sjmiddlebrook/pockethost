@@ -83,7 +83,7 @@ new Server(
                 sftp.status(reqid, STATUS_CODE.OK)
 
                 console.log(
-                  'Write to file at offset ${offset}: ${inspect(data)}'
+                  'Write to file at offset ${offset}: ${inspect(data)}',
                 )
               })
               .on('CLOSE', (reqid, handle) => {
@@ -106,7 +106,7 @@ new Server(
       .on('close', () => {
         console.log('Client disconnected')
       })
-  }
+  },
 ).listen(54191, '127.0.0.1', function () {
   console.log('Listening on port ' + this.address().port)
 })
