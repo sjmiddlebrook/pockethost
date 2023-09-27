@@ -17,7 +17,6 @@
 - [Maintenance Mode](usage/maintenance.md)
 - [FTP Access](usage/ftp.md)
 - [Backup & Restore](usage/backup-and-restore.md)
-- [Worker](daily-usage/worker.md)
 - [PocketBase Hooks](usage/hooks.md)
 - [Upgrading](usage/upgrading.md)
 
@@ -36,6 +35,9 @@
 ## Release History
 
 - [next](releases/next.md)
+- [0.9.0](releases/0.9.0.md)
+- [0.8.2](releases/0.8.2.md)
+- [0.8.1](releases/0.8.1.md)
 - [0.8.0](releases/0.8.0.md)
 - [0.7.2](releases/0.7.2.md)
 - [0.7.1](releases/0.7.1.md)
@@ -57,4 +59,4 @@
 - [0.3.1](releases/0.3.1.md)
 - [0.3.0](releases/0.3.0.md)
 - [0.2.0](releases/0.2.0.md)
-- [0.0.1](release-history/0.0.1.md)
+- [0.0.1](releases/0.0.1.md)

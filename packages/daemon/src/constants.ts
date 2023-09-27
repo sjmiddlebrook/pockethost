@@ -25,7 +25,7 @@ export const DAEMON_PB_MIGRATIONS_DIR = (() => {
   const v = env('DAEMON_PB_MIGRATIONS_DIR')
   if (!v) {
     throw new Error(
-      `DAEMON_PB_MIGRATIONS_DIR (${v}) environment variable must be specified`
+      `DAEMON_PB_MIGRATIONS_DIR environment variable must be specified`,
     )
   }
   if (!existsSync(v)) {
@@ -34,11 +34,24 @@ export const DAEMON_PB_MIGRATIONS_DIR = (() => {
   return v
 })()
 
+export const DAEMON_PB_HOOKS_DIR = (() => {
+  const v = env('DAEMON_PB_HOOKS_DIR')
+  if (!v) {
+    throw new Error(
+      `DAEMON_PB_HOOKS_DIR environment variable must be specified`,
+    )
+  }
+  if (!existsSync(v)) {
+    throw new Error(`DAEMON_PB_HOOKS_DIR (${v}) path must exist`)
+  }
+  return v
+})()
+
 export const DAEMON_PB_DATA_DIR = (() => {
   const v = env('DAEMON_PB_DATA_DIR')
   if (!v) {
     throw new Error(
-      `DAEMON_PB_DATA_DIR (${v}) environment variable must be specified`
+      `DAEMON_PB_DATA_DIR (${v}) environment variable must be specified`,
     )
   }
   if (!existsSync(v)) {
@@ -53,15 +66,9 @@ export const TRACE = envb('TRACE', false)
 
 export const DAEMON_MAX_PORTS = envi(`DAEMON_MAX_PORTS`, 500)
 
-export const DAEMON_PB_BACKUP_SLEEP = envi(`DAEMON_PB_BACKUP_SLEEP`, 100)
-export const DAEMON_PB_BACKUP_PAGE_COUNT = envi(
-  `DAEMON_PB_BACKUP_PAGE_COUNT`,
-  5
-)
-
 export const PH_BIN_CACHE = env(
   `PH_BIN_CACHE`,
-  join(__dirname, `../../../.pbincache`)
+  join(__dirname, `../../../.pbincache`),
 )
 
 export const PH_FTP_PORT = envi('PH_FTP_PORT', 21)
@@ -77,6 +84,9 @@ export const DENO_PATH = env('DENO_PATH', `deno`)
 
 export const DAEMON_PB_SEMVER = env('DAEMON_PB_SEMVER', '') // This will default always to the max version
 
+export const HOST_OS = env('HOST_OS', 'darwin')
+export const DOCKER_ARCH = env('DOCKER_ARCH', 'arm64')
+
 console.log({
   PUBLIC_APP_PROTOCOL,
   PUBLIC_APP_DOMAIN,
@@ -85,6 +95,7 @@ console.log({
   DAEMON_PB_PASSWORD,
   DAEMON_PB_MIGRATIONS_DIR,
   DAEMON_PB_SEMVER,
+  DAEMON_PB_HOOKS_DIR,
   DENO_PATH,
   PH_FTP_PASV_IP,
   PH_FTP_PORT,
@@ -93,8 +104,6 @@ console.log({
   SSL_KEY,
   SSL_CERT,
   PH_BIN_CACHE,
-  DAEMON_PB_BACKUP_SLEEP,
-  DAEMON_PB_BACKUP_PAGE_COUNT,
   NODE_ENV,
   DEBUG,
   TRACE,

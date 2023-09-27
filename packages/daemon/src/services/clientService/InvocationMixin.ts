@@ -1,6 +1,7 @@
 import {
   InstanceFields,
   InvocationFields,
+  InvocationPid,
   pocketNow,
   safeCatch,
 } from '@pockethost/common'
@@ -9,7 +10,7 @@ import { MixinContext } from './PbClient'
 
 export const createInvocationMixin = (
   context: MixinContext,
-  instanceApi: InstanceApi
+  instanceApi: InstanceApi,
 ) => {
   const { logger } = context
   const { dbg } = logger.create('InvocationMixin')
@@ -19,8 +20,9 @@ export const createInvocationMixin = (
   const createInvocation = safeCatch(
     `createInvocation`,
     logger,
-    async (instance: InstanceFields, pid: number) => {
+    async (instance: InstanceFields, pid: InvocationPid) => {
       const init: Partial<InvocationFields> = {
+        uid: instance.uid,
         startedAt: pocketNow(),
         pid,
         instanceId: instance.id,
@@ -32,7 +34,7 @@ export const createInvocationMixin = (
           $cancelKey: `createInvocation:${instance.id}:${pid}`,
         })
       return _inv
-    }
+    },
   )
 
   const pingInvocation = safeCatch(
@@ -47,9 +49,8 @@ export const createInvocationMixin = (
       const _inv = await client
         .collection('invocations')
         .update<InvocationFields>(invocation.id, toUpdate)
-      await instanceApi.updateInstanceSeconds(invocation.instanceId)
       return _inv
-    }
+    },
   )
 
   const finalizeInvocation = safeCatch(
@@ -67,9 +68,8 @@ export const createInvocationMixin = (
       const _inv = await client
         .collection('invocations')
         .update<InvocationFields>(invocation.id, toUpdate)
-      await instanceApi.updateInstanceSeconds(invocation.instanceId)
       return _inv
-    }
+    },
   )
 
   return { finalizeInvocation, pingInvocation, createInvocation }

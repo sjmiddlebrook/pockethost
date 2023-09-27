@@ -21,8 +21,15 @@ import { logger as loggerService } from '@pockethost/common'
 import { exec } from 'child_process'
 import { centralDbService } from './services/CentralDbService'
 import { instanceLoggerService } from './services/InstanceLoggerService'
+import { portManager } from './services/PortManager'
 import { updaterService } from './services/UpdaterService/UpdaterService'
 // gen:import
+
+const [major, minor, patch] = process.versions.node.split('.').map(Number)
+
+if ((major || 0) < 18) {
+  throw new Error(`Node 18 or higher required.`)
+}
 
 loggerService({ debug: DEBUG, trace: TRACE, errorTrace: !DEBUG })
 
@@ -68,12 +75,13 @@ global.EventSource = require('eventsource')
           command: 'migrate',
           isMothership: true,
           version: DAEMON_PB_SEMVER,
+          name: PUBLIC_APP_DB,
           slug: PUBLIC_APP_DB,
           onUnexpectedStop: () => {
             error(`migrate had an unexpected stop. Check it out`)
           },
         },
-        { logger }
+        { logger },
       )
     ).exited
     info(`Migrating done`)
@@ -84,20 +92,22 @@ global.EventSource = require('eventsource')
       command: 'serve',
       isMothership: true,
       version: DAEMON_PB_SEMVER,
+      name: PUBLIC_APP_DB,
       slug: PUBLIC_APP_DB,
       port: DAEMON_PB_PORT_BASE,
       onUnexpectedStop: () => {
         error(`migrate had an unexpected stop. Check it out`)
       },
     },
-    { logger }
+    { logger },
   )
 
   /**
    * Launch services
    */
+  await portManager({ maxPorts: DAEMON_MAX_PORTS })
   await clientService({ url, logger })
-  ftpService({ logger })
+  await ftpService({ logger })
   await rpcService({ logger })
   await proxyService({
     logger,
@@ -110,7 +120,6 @@ global.EventSource = require('eventsource')
     logger,
     instanceApiCheckIntervalMs: 50,
     instanceApiTimeoutMs: 5000,
-    maxPorts: DAEMON_MAX_PORTS,
   })
   await centralDbService({ logger })
   // gen:service
