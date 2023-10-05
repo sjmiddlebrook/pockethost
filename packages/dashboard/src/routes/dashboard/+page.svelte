@@ -1,4 +1,5 @@
 <script lang="ts">
+  import VerifyAccountBar from '$components/VerifyAccountBar.svelte'
   import AuthStateGuard from '$components/helpers/AuthStateGuard.svelte'
   import { globalInstancesStore } from '$util/stores'
   import { values } from '@s-libs/micro-dash'
@@ -20,6 +21,8 @@
         ><i class="fa-solid fa-plus"></i> New App</a
       >
     </div>
+
+    <VerifyAccountBar />
 
     <!--<UsageChartForAllInstances />-->
 
