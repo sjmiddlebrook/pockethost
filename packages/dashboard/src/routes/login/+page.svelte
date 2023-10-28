@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { handleLogin } from '$util/database'
   import { slide } from 'svelte/transition'
+  import { handleLogin } from '$util/database'
 
   let email: string = ''
   let password: string = ''

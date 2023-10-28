@@ -6,6 +6,7 @@ description: In our incredible developer-centric GitHub, awesome-pocketbase, we
   SQLite tools, and even starter kits, the community is putting together some
   exceptional tools to amplify your experience. If you've created a project for
   PocketBase yourself, reach out! We'd love to feature you.
+
 ---
 
 # Overview
@@ -17,6 +18,7 @@ Explore the terrain that includes everything from starter kits to demo apps, sam
 Make sure to establish a connection and get listed. There's a thriving community of fellow explorers eagerly awaiting the chance to draw on your PocketBase project. Get involved, share your work, and be part of this flourishing ecosystem.
 
 Don't just concede to the magic of PocketBase. Amplify it! Raise your voice, showcase your project, and help librate the full potential of PocketBase with your contributions. This is your call to action. Connect, create, and conquer. Let's make PocketBase even more awesome than it already is!
+
 
 I maintain https://github.com/benallfree/awesome-pocketbase. We have over 20 community resources (Python SDK is the latest addition). The resources include starter kits, demo apps, language- and framework-specific samples, SQLite tools, and more. Check it out!
 

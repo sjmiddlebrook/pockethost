@@ -3,8 +3,8 @@
   import CardHeader from '$components/cards/CardHeader.svelte'
   import { DOCS_URL } from '$src/env'
   import { client } from '$src/pocketbase'
-  import { slide } from 'svelte/transition'
   import { instance } from '../store'
+  import { slide } from 'svelte/transition'
 
   const { renameInstance } = client()
 
@@ -84,6 +84,7 @@
       bind:value={formSubdomain}
       class="input input-bordered w-full"
     />
+
     <button type="submit" class="btn btn-error" disabled={isButtonDisabled}
       >Rename Instance</button
     >

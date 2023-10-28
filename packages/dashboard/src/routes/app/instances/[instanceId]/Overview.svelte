@@ -1,5 +1,6 @@
 <script lang="ts">
   import ProvisioningStatus from '$components/ProvisioningStatus.svelte'
+  import AccordionItem from '../../../../components/AccordionItem.svelte'
   import { instance } from './store'
 
   $: ({ status, version, secondsThisMonth } = $instance)

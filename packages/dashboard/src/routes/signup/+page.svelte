@@ -1,10 +1,10 @@
 <script lang="ts">
+  import { slide } from 'svelte/transition'
   import {
     handleFormError,
     handleLogin,
     handleRegistration,
   } from '$util/database'
-  import { slide } from 'svelte/transition'
 
   let email: string = ''
   let password: string = ''
