@@ -14,8 +14,6 @@
   import UsageChart from './UsageChart.svelte'
   import { instance } from './store'
 
-  $: ({ status, version, secondsThisMonth } = $instance)
-
   const { instanceId } = $page.params
 
   console.log(instanceId)
