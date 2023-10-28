@@ -118,6 +118,14 @@ jobs:
           args: '**LIVE** https://status.pockethost.io ([permalink](${{ steps.status_deploy.outputs.url }})) was updated by ${{ github.actor }} in [${{ env.GIT_COMMIT_SHORT_SHA }}](https://github.com/${{ github.repository}}/commit/${{ github.sha }}) on [${{ github.repository}}#${{ github.ref_name }}](https://github.com/${{ github.repository}}/tree/${{ github.ref_name }}): `${{ env.GIT_COMMIT_MESSAGE_SUBJECT }}`'
 
       - name: Discord live branch notification for dashboard
+        if: github.ref_name == 'master' && steps.changed-status-files.outputs.any_changed == 'true'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: '**LIVE** https://status.pockethost.io ([permalink](${{ steps.status_deploy.outputs.url }})) was updated by ${{ github.actor }} in [${{ env.GIT_COMMIT_SHORT_SHA }}](https://github.com/${{ github.repository}}/commit/${{ github.sha }}) on [${{ github.repository}}#${{ github.ref_name }}](https://github.com/${{ github.repository}}/tree/${{ github.ref_name }}): `${{ env.GIT_COMMIT_MESSAGE_SUBJECT }}`'
+
+      - name: Discord live branch notification for dashboard
         if: github.ref_name == 'master' && steps.changed-dashboard-files.outputs.any_changed == 'true'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
