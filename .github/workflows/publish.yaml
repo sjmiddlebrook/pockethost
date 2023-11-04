@@ -11,6 +11,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Prepare build
+        run: |
+          pnpm i
+          pnpm lint
+          pnpm check:types
+          pnpm build
+
       - name: Get changed lander files
         id: changed-lander-files
         uses: tj-actions/changed-files@v35
