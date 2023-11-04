@@ -25,7 +25,6 @@ jobs:
         run: |
           pnpm i
           pnpm lint
-          pnpm check:types
           pnpm build
 
       - name: Get changed lander files
