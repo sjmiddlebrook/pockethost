@@ -25,6 +25,8 @@ jobs:
           pnpm i
           pnpm lint
           pnpm build-frontends
+          ls
+          ls dist
 
       - name: Get changed lander files
         id: changed-lander-files
