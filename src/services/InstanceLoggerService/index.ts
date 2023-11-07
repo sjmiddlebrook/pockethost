@@ -105,7 +105,11 @@ export function InstanceLogger(instanceId: string, target: string) {
       }
     },
   }
+<<<<<<< HEAD:src/services/InstanceLoggerService/index.ts
   if (DEBUG()) {
+=======
+  if (PUBLIC_DEBUG) {
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/InstanceLoggerService/index.ts
     const { dbg } = LoggerService().create(`Logger`).breadcrumb(instanceId)
     api.tail(0, (entry) => {
       dbg(entry.message)

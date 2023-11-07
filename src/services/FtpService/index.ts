@@ -7,8 +7,18 @@ import {
   SSL_CERT,
   SSL_KEY,
 } from '$constants'
+<<<<<<< HEAD:src/services/FtpService/index.ts
 import { LoggerService, SingletonBaseConfig, mkSingleton } from '$shared'
 import { exitHook } from '$util'
+=======
+import { clientService, createPbClient } from '$services'
+import { exitHook } from '$util'
+import {
+  LoggerService,
+  SingletonBaseConfig,
+  mkSingleton,
+} from '@pockethost/common'
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/FtpService/index.ts
 import { readFileSync } from 'fs'
 import { FtpSrv } from 'ftp-srv'
 import pocketbaseEs from 'pocketbase'
@@ -41,10 +51,13 @@ export function isInstanceRootFolder(name: string): name is FolderNames {
 }
 
 export const ftpService = mkSingleton((config: FtpConfig) => {
+<<<<<<< HEAD:src/services/FtpService/index.ts
   const tls = {
     key: readFileSync(SSL_KEY()),
     cert: readFileSync(SSL_CERT()),
   }
+=======
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/FtpService/index.ts
   const _ftpServiceLogger = LoggerService().create('FtpService')
   const { dbg, info } = _ftpServiceLogger
 
@@ -61,7 +74,12 @@ export const ftpService = mkSingleton((config: FtpConfig) => {
   ftpServer.on(
     'login',
     async ({ connection, username, password }, resolve, reject) => {
+<<<<<<< HEAD:src/services/FtpService/index.ts
       const client = new pocketbaseEs(MOTHERSHIP_URL())
+=======
+      const url = (await clientService()).client.url
+      const client = createPbClient(url)
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/FtpService/index.ts
       try {
         await client.collection('users').authWithPassword(username, password)
         dbg(`Logged in`)
@@ -79,7 +97,11 @@ export const ftpService = mkSingleton((config: FtpConfig) => {
   })
 
   exitHook(() => {
+<<<<<<< HEAD:src/services/FtpService/index.ts
     dbg(`Closing FTP server`)
+=======
+    info(`Closing FTP server`)
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/FtpService/index.ts
     ftpServer.close()
   })
 

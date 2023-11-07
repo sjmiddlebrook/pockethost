@@ -7,6 +7,7 @@ import {
   MOTHERSHIP_HOOKS_DIR,
   MOTHERSHIP_MIGRATIONS_DIR,
 } from '$constants'
+<<<<<<< HEAD:src/services/PocketBaseService/index.ts
 import { InstanceLogger, PortService } from '$services'
 import {
   createCleanupManager,
@@ -16,6 +17,18 @@ import {
   SingletonBaseConfig,
 } from '$shared'
 import { assert, asyncExitHook, mkInternalUrl, tryFetch } from '$util'
+=======
+import { port as getPort, InstanceLogger } from '$services'
+import { assert, asyncExitHook, mkInternalUrl, tryFetch } from '$util'
+import {
+  createCleanupManager,
+  createTimerManager,
+  InvocationPid,
+  LoggerService,
+  mkSingleton,
+  SingletonBaseConfig,
+} from '@pockethost/common'
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/PocketBaseService/index.ts
 import { map } from '@s-libs/micro-dash'
 import Docker, { Container, ContainerCreateOptions } from 'dockerode'
 import { existsSync } from 'fs'
@@ -247,12 +260,18 @@ export const createPocketbaseService = async (
       iLogger.info(`Process exited with code ${code}`)
     })
     const url = mkInternalUrl(port)
+<<<<<<< HEAD:src/services/PocketBaseService/index.ts
     logger.breadcrumb(url)
     dbg(`Making exit hook for ${url}`)
     const unsub = asyncExitHook(async () => {
       dbg(`Exiting process ${slug}`)
       await api.kill()
       dbg(`Process ${slug} exited`)
+=======
+    const unsub = asyncExitHook(async () => {
+      dbg(`Exiting process ${slug}`)
+      await api.kill()
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/PocketBaseService/index.ts
     })
     if (command === 'serve') {
       await tryFetch(url, {
@@ -271,18 +290,25 @@ export const createPocketbaseService = async (
       },
       exitCode,
       kill: async () => {
+<<<<<<< HEAD:src/services/PocketBaseService/index.ts
         dbg(`Killing`)
+=======
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/PocketBaseService/index.ts
         unsub()
         if (!container) {
           dbg(`Already exited`)
           return
         }
         iLogger.info(`Stopping instance`)
+<<<<<<< HEAD:src/services/PocketBaseService/index.ts
         dbg(`Stopping instance`)
         await container.stop({ signal: `SIGKILL` }).catch(error)
         dbg(`Instance stopped`)
         const code = await exitCode
         dbg(`Instance exited with ${code}`)
+=======
+        await container.stop()
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/PocketBaseService/index.ts
         iLogger.info(`Instance stopped`)
         stderr.off('data', _stdErrData)
         stdout.off('data', _stdoutData)
@@ -296,7 +322,11 @@ export const createPocketbaseService = async (
   }
 
   asyncExitHook(async () => {
+<<<<<<< HEAD:src/services/PocketBaseService/index.ts
     dbg(`Shutting down timers`)
+=======
+    dbg(`Shutting down pocketbaseService`)
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/PocketBaseService/index.ts
     tm.shutdown()
   })
 

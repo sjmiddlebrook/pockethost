@@ -1,18 +1,39 @@
 import {
   createCleanupManager,
+  createEvent,
   LoggerService,
   mkSingleton,
   serialAsyncExecutionGuard,
   SingletonBaseConfig,
-} from '$shared'
-import knex from 'knex'
+} from '@pockethost/common'
+import { open, Database as SqliteDatabase } from 'sqlite'
+import { Database } from 'sqlite3'
+import { JsonObject } from 'type-fest'
 
-export type SqliteServiceApi = ReturnType<typeof knex>
+export type SqliteUnsubscribe = () => void
+export type SqliteChangeHandler<TRecord extends JsonObject> = (
+  e: SqliteChangeEvent<TRecord>,
+) => void
+export type SqliteEventType = 'update' | 'insert' | 'delete'
+export type SqliteChangeEvent<TRecord extends JsonObject> = {
+  table: string
+  action: SqliteEventType
+  record: TRecord
+}
+export type SqliteServiceApi = {
+  all: SqliteDatabase['all']
+  get: SqliteDatabase['get']
+  migrate: SqliteDatabase['migrate']
+  exec: SqliteDatabase['exec']
+  subscribe: <TRecord extends JsonObject>(
+    cb: SqliteChangeHandler<TRecord>,
+  ) => SqliteUnsubscribe
+}
 export type SqliteServiceConfig = SingletonBaseConfig & {}
 
-export type SqliteService = ReturnType<typeof SqliteService>
+export type SqliteService = ReturnType<typeof sqliteService>
 
-export const SqliteService = mkSingleton((config: SqliteServiceConfig) => {
+export const sqliteService = mkSingleton((config: SqliteServiceConfig) => {
   const { dbg, trace } = LoggerService().create(`sqliteService`)
   const connections: { [_: string]: SqliteServiceApi } = {}
 
@@ -33,21 +54,52 @@ export const SqliteService = mkSingleton((config: SqliteServiceConfig) => {
       dbg(`Not yet opened`)
 
       const api = await (async () => {
-        dbg(`Opening ${filename}`)
+        const db = await open({ filename, driver: Database })
+        dbg(`Database opened`)
+        db.db.addListener(
+          'change',
+          async (
+            eventType: SqliteEventType,
+            database: string,
+            table: string,
+            rowId: number,
+          ) => {
+            trace(`Got a raw change event`, {
+              eventType,
+              database,
+              table,
+              rowId,
+            })
+            if (eventType === 'delete') return // Not supported
 
-        const db = knex({
-          client: 'sqlite3', // or 'better-sqlite3'
-          connection: {
-            filename,
+            const record = await db.get(
+              `select * from ${table} where rowid = '${rowId}'`,
+            )
+            const e: SqliteChangeEvent<any> = {
+              table,
+              action: eventType,
+              record,
+            }
+            fireChange(e)
           },
-        })
+        )
 
         cm.add(() => {
           dbg(`Closing connection`)
-          db.destroy()
+          db.db.removeAllListeners()
+          db.close()
         })
+        db.migrate
 
-        return db
+        const [onChange, fireChange] = createEvent<SqliteChangeEvent<any>>()
+        const api: SqliteServiceApi = {
+          all: db.all.bind(db),
+          get: db.get.bind(db),
+          migrate: db.migrate.bind(db),
+          exec: db.exec.bind(db),
+          subscribe: onChange,
+        }
+        return api
       })().catch(error)
       if (!api) {
         throw new Error(`Unable to connect to SQLite`)

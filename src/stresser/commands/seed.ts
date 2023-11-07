@@ -1,9 +1,15 @@
+<<<<<<< HEAD:src/stresser/commands/seed.ts
 import {
   MOTHERSHIP_ADMIN_PASSWORD,
   MOTHERSHIP_ADMIN_USERNAME,
 } from '$constants'
 import { MothershipAdmimClientService } from '$services'
 import { InstanceStatus, serialAsyncExecutionGuard } from '$shared'
+=======
+import { DAEMON_PB_PASSWORD, DAEMON_PB_USERNAME } from '$constants'
+import { clientService } from '$services'
+import { InstanceStatus, serialAsyncExecutionGuard } from '@pockethost/common'
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/stresser/commands/seed.ts
 import { random, range, shuffle } from '@s-libs/micro-dash'
 import { Command } from 'commander'
 import { customAlphabet } from 'nanoid'
@@ -48,8 +54,13 @@ export const createSeed = (context: { program: Command } & ContextBase) => {
 
       const { client } = await MothershipAdmimClientService({
         url: options.mothershipUrl,
+<<<<<<< HEAD:src/stresser/commands/seed.ts
         username: MOTHERSHIP_ADMIN_USERNAME(),
         password: MOTHERSHIP_ADMIN_PASSWORD(),
+=======
+        username: DAEMON_PB_USERNAME,
+        password: DAEMON_PB_PASSWORD,
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/stresser/commands/seed.ts
       })
 
       /**

@@ -5,12 +5,22 @@ import {
   MOTHERSHIP_NAME,
 } from '$constants'
 import {
+<<<<<<< HEAD:src/services/InstanceService/index.ts
   InstanceLogger,
   MothershipAdmimClientService,
   PocketbaseService,
   PortService,
   proxyService,
 } from '$services'
+=======
+  clientService,
+  InstanceLogger,
+  pocketbaseService,
+  port,
+  proxyService,
+} from '$services'
+import { asyncExitHook, mkInternalUrl, now } from '$util'
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/InstanceService/index.ts
 import {
   assertTruthy,
   CLEANUP_PRIORITY_LAST,

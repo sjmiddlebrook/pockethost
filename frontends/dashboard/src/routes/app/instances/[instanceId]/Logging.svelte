@@ -1,38 +1,18 @@
 <script lang="ts">
   import Card from '$components/cards/Card.svelte'
   import CardHeader from '$components/cards/CardHeader.svelte'
-  import {
-    LoggerService,
-    StreamNames,
-    Unsubscribe,
-    type InstanceLogFields,
-  } from '$shared'
+  import { LoggerService, Unsubscribe } from '$shared'
   import { client } from '$src/pocketbase-client'
   import { mkCleanup } from '$util/componentCleanup'
   import { onMount } from 'svelte'
-  import { derived, writable } from 'svelte/store'
+  import { derived } from 'svelte/store'
+  import XTerm from './XTerm.svelte'
   import { instance } from './store'
 
   const { dbg, trace } = LoggerService().create(`Logging.svelte`)
 
-  $: ({ id } = $instance)
-
-  // This takes in a log type and returns a specific text color
-  const logColor = (type: StreamNames) => {
-    if (type === StreamNames.StdOut) return 'text-info'
-    if (type === StreamNames.StdErr) return 'text-error'
-
-    return 'text-info'
-  }
-
-  // This will take in the log message and return either the message or a string
-  const logText = (log: any) => {
-    try {
-      return JSON.parse(log.message)
-    } catch (e) {
-      return log.message
-    }
-  }
+  let miniTerm: XTerm
+  let fullTerm: XTerm
 
   // This will open the full screen modal
   const handleFullScreenModal = () => {
@@ -42,8 +22,6 @@
     modal?.showModal()
   }
 
-  const logs = writable<InstanceLogFields[]>([])
-
   const onDestroy = mkCleanup()
 
   const instanceId = derived(instance, (instance) => instance.id)
@@ -51,15 +29,10 @@
   onMount(async () => {
     let unwatch: Unsubscribe | undefined
     const unsub = instanceId.subscribe((id) => {
-      dbg(`Watching instance log ${id}`)
       unwatch?.()
-      logs.set([])
       unwatch = client().watchInstanceLog(id, (newLog) => {
-        trace(`Got new log`, newLog)
-
-        logs.update((currentLogs) => {
-          return [...currentLogs, newLog]
-        })
+        miniTerm.writeln(newLog)
+        fullTerm.writeln(newLog)
       })
     })
     onDestroy(unsub)
@@ -79,25 +52,8 @@
     <div class="modal-box max-w-[90vw] h-[90vh]">
       <h3 class="font-bold text-lg">Instance Logging</h3>
 
-      <div class="py-4 h-[80vh] overflow-y-scroll flex flex-col gap-3">
-        {#each $logs as log}
-          <div
-            class="px-4 text-[11px] font-mono flex align-center"
-            data-prefix=">"
-          >
-            <span class="mr-2"
-              ><i class="fa-regular fa-angle-right text-accent"></i></span
-            >
-
-            <div>
-              <span class="mr-1 text-accent">{log.time}</span>
-              <span class={`mr-1 font-bold ${logColor(log.stream)}`}
-                >{log.stream}</span
-              >
-              <span class="mr-1 text-base-content block">{logText(log)}</span>
-            </div>
-          </div>
-        {/each}
+      <div class="py-4 h-[80vh]">
+        <XTerm bind:this={fullTerm} />
       </div>
     </div>
 
@@ -112,25 +68,8 @@
       on:click={handleFullScreenModal}
       >Fullscreen <i class="fa-regular fa-arrows-maximize"></i></button
     >
-    <div class="h-[450px] flex flex-col overflow-y-scroll gap-3">
-      {#each $logs as log}
-        <div
-          class="px-4 text-[11px] font-mono flex align-center"
-          data-prefix=">"
-        >
-          <span class="mr-2"
-            ><i class="fa-regular fa-angle-right text-accent"></i></span
-          >
-
-          <div>
-            <span class="mr-1 text-accent">{log.time}</span>
-            <span class={`mr-1 font-bold ${logColor(log.stream)}`}
-              >{log.stream}</span
-            >
-            <span class="mr-1 text-base-content block">{logText(log)}</span>
-          </div>
-        </div>
-      {/each}
+    <div class="h-[450px]">
+      <XTerm bind:this={miniTerm} />
     </div>
   </div>
 </Card>

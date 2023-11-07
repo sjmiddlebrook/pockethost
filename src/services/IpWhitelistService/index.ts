@@ -1,6 +1,11 @@
+<<<<<<< HEAD:src/services/IpWhitelistService/index.ts
 import { IPCIDR_LIST } from '$constants'
 import { proxyService } from '$services'
 import { LoggerService, mkSingleton, SingletonBaseConfig } from '$shared'
+=======
+import { DAEMON_IPCIDR_LIST } from '$constants'
+import { proxyService } from '$services'
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/IpWhitelistService/index.ts
 import { assert } from '$util'
 import IPCIDR from 'ip-cidr'
 export type IpWhitelistServiceConfig = SingletonBaseConfig & {
@@ -11,7 +16,11 @@ const IP_WHITELIST_SERVICE_NAME = 'IpWhitelistService'
 
 export const ipWhitelistService = mkSingleton(
   async (config: Partial<IpWhitelistServiceConfig> = {}) => {
+<<<<<<< HEAD:src/services/IpWhitelistService/index.ts
     const { ipRanges = IPCIDR_LIST() } = config
+=======
+    const { ipRanges = DAEMON_IPCIDR_LIST } = config
+>>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/IpWhitelistService/index.ts
     const logger = LoggerService().create(`ipWhitelistService`)
     const _serviceLogger = logger.create(IP_WHITELIST_SERVICE_NAME)
     const { dbg, error, warn, abort } = _serviceLogger
