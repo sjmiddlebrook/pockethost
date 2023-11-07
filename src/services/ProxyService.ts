@@ -1,20 +1,11 @@
-<<<<<<< HEAD:src/services/ProxyService.ts
 import { APEX_DOMAIN, DAEMON_PORT } from '$constants'
-=======
-import { DAEMON_PORT, PUBLIC_EDGE_APEX_DOMAIN } from '$constants'
-import { asyncExitHook } from '$util'
->>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/ProxyService.ts
 import {
   Logger,
   LoggerService,
   SingletonBaseConfig,
   mkSingleton,
-<<<<<<< HEAD:src/services/ProxyService.ts
 } from '$shared'
 import { asyncExitHook } from '$util'
-=======
-} from '@pockethost/common'
->>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/ProxyService.ts
 import { isFunction } from '@s-libs/micro-dash'
 import {
   IncomingMessage,

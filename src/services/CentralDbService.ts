@@ -1,14 +1,5 @@
-<<<<<<< HEAD:src/services/CentralDbService.ts
 import { MOTHERSHIP_NAME } from '$constants'
 import { LoggerService, mkSingleton, SingletonBaseConfig } from '$shared'
-=======
-import { PUBLIC_MOTHERSHIP_NAME } from '$constants'
-import {
-  LoggerService,
-  mkSingleton,
-  SingletonBaseConfig,
-} from '@pockethost/common'
->>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/services/CentralDbService.ts
 import { proxyService } from './ProxyService'
 
 export type CentralDbServiceConfig = SingletonBaseConfig

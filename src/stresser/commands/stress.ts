@@ -1,15 +1,9 @@
-<<<<<<< HEAD:src/stresser/commands/stress.ts
 import {
   MOTHERSHIP_ADMIN_PASSWORD,
   MOTHERSHIP_ADMIN_USERNAME,
 } from '$constants'
 import { MothershipAdmimClientService } from '$services'
 import { InstanceId, serialAsyncExecutionGuard } from '$shared'
-=======
-import { DAEMON_PB_PASSWORD, DAEMON_PB_USERNAME } from '$constants'
-import { clientService } from '$services'
-import { InstanceId, serialAsyncExecutionGuard } from '@pockethost/common'
->>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/stresser/commands/stress.ts
 import { random, range, shuffle, values } from '@s-libs/micro-dash'
 import { Command } from 'commander'
 import fetch from 'node-fetch'
@@ -59,13 +53,8 @@ export const createStress = (context: { program: Command } & ContextBase) => {
 
       const { client } = await MothershipAdmimClientService({
         url: options.mothershipUrl,
-<<<<<<< HEAD:src/stresser/commands/stress.ts
         username: MOTHERSHIP_ADMIN_USERNAME(),
         password: MOTHERSHIP_ADMIN_PASSWORD(),
-=======
-        username: DAEMON_PB_USERNAME,
-        password: DAEMON_PB_PASSWORD,
->>>>>>> 8c38aa1d (Squashed commit of the following:):packages/daemon/src/stresser/commands/stress.ts
       })
 
       const users = await client.client.collection('users').getFullList()
