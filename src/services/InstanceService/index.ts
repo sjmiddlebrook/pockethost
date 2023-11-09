@@ -4,6 +4,8 @@ import {
   INSTANCE_APP_MIGRATIONS_DIR,
   mkAppUrl,
   mkDocUrl,
+  mkEdgeUrl,
+  MOTHERSHIP_DATA_ROOT,
   MOTHERSHIP_NAME,
 } from '$constants'
 import {
@@ -12,6 +14,7 @@ import {
   PocketbaseService,
   PortService,
   proxyService,
+  SqliteService,
 } from '$services'
 import {
   assertTruthy,
@@ -29,6 +32,7 @@ import { asyncExitHook, mkInternalUrl, now } from '$util'
 import { flatten, map, values } from '@s-libs/micro-dash'
 import Bottleneck from 'bottleneck'
 import { globSync } from 'glob'
+import stringify from 'json-stringify-safe'
 import { basename, join } from 'path'
 import { ClientResponseError } from 'pocketbase'
 import { AsyncReturnType } from 'type-fest'
@@ -254,7 +258,6 @@ export const instanceService = mkSingleton(
               name: instance.subdomain,
               slug: instance.id,
               port: newPort,
-              env: instance.secrets || {},
               extraBinds: flatten([
                 globSync(join(INSTANCE_APP_MIGRATIONS_DIR(), '*.js')).map(
                   (file) =>
@@ -265,6 +268,24 @@ export const instanceService = mkSingleton(
                     `${file}:/home/pocketbase/pb_hooks/${basename(file)})`,
                 ),
               ]),
+              env: {
+                ...instance.secrets,
+                PH_ADMIN_USER_INFO: await (async () => {
+                  const { getDatabase } = SqliteService()
+                  const db = await getDatabase(
+                    join(MOTHERSHIP_DATA_ROOT(), 'pb_data', 'data.db'),
+                  )
+                  dbg(`got database`)
+                  const [res] = await db
+                    .select('id', 'email', 'tokenKey', 'passwordHash')
+                    .from(`users`)
+                    .where('id', instance.uid)
+                  dbg(`Got user info`, { res })
+                  return stringify(res)
+                })(),
+                PH_APP_NAME: instance.subdomain,
+                PH_INSTANCE_URL: mkEdgeUrl(instance.subdomain),
+              },
               version,
             })
             return cp
