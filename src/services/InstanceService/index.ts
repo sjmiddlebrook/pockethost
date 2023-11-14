@@ -5,7 +5,6 @@ import {
   mkAppUrl,
   mkDocUrl,
   mkEdgeUrl,
-  MOTHERSHIP_DATA_ROOT,
   MOTHERSHIP_NAME,
 } from '$constants'
 import {
@@ -14,7 +13,6 @@ import {
   PocketbaseService,
   PortService,
   proxyService,
-  SqliteService,
 } from '$services'
 import {
   assertTruthy,
@@ -32,7 +30,6 @@ import { asyncExitHook, mkInternalUrl, now } from '$util'
 import { flatten, map, values } from '@s-libs/micro-dash'
 import Bottleneck from 'bottleneck'
 import { globSync } from 'glob'
-import stringify from 'json-stringify-safe'
 import { basename, join } from 'path'
 import { ClientResponseError } from 'pocketbase'
 import { AsyncReturnType } from 'type-fest'
@@ -261,28 +258,22 @@ export const instanceService = mkSingleton(
               extraBinds: flatten([
                 globSync(join(INSTANCE_APP_MIGRATIONS_DIR(), '*.js')).map(
                   (file) =>
-                    `${file}:/home/pocketbase/pb_migrations/${basename(file)}`,
+                    `${file}:/home/pocketbase/pb_migrations/${basename(
+                      file,
+                    )}:ro`,
                 ),
                 globSync(join(INSTANCE_APP_HOOK_DIR(), '*.js')).map(
                   (file) =>
-                    `${file}:/home/pocketbase/pb_hooks/${basename(file)})`,
+                    `${file}:/home/pocketbase/pb_hooks/${basename(file)}:ro`,
                 ),
               ]),
               env: {
                 ...instance.secrets,
-                PH_ADMIN_USER_INFO: await (async () => {
-                  const { getDatabase } = SqliteService()
-                  const db = await getDatabase(
-                    join(MOTHERSHIP_DATA_ROOT(), 'pb_data', 'data.db'),
-                  )
-                  dbg(`got database`)
-                  const [res] = await db
-                    .select('id', 'email', 'tokenKey', 'passwordHash')
-                    .from(`users`)
-                    .where('id', instance.uid)
-                  dbg(`Got user info`, { res })
-                  return stringify(res)
-                })(),
+                PH_ADMIN_USER_INFO: JSON.stringify(
+                  await client.getUserTokenInfo({
+                    id: instance.uid,
+                  }),
+                ),
                 PH_APP_NAME: instance.subdomain,
                 PH_INSTANCE_URL: mkEdgeUrl(instance.subdomain),
               },

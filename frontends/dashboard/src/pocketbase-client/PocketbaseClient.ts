@@ -99,8 +99,8 @@ export const createPocketbaseClient = (config: PocketbaseClientConfig) => {
   const refreshAuthToken = () => client.collection('users').authRefresh()
 
   const watchHelper = createWatchHelper({ client })
-  const { watchById, watchAllById } = watchHelper
-  const restMixin = createRestHelper({ client, watchHelper })
+  const { watchById } = watchHelper
+  const restMixin = createRestHelper({ client })
   const { mkRest } = restMixin
 
   const createInstance = mkRest<CreateInstancePayload, CreateInstanceResult>(
