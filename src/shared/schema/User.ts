@@ -4,21 +4,21 @@ export enum SubscriptionType {
   Legacy = 'legacy',
   Free = 'free',
   Premium = 'premium',
-  Lifetime = 'lifetime',
+  Founder = 'lifetime',
 }
 
 export const PLAN_NAMES = {
   [SubscriptionType.Legacy]: 'idspispopd',
   [SubscriptionType.Free]: 'idclip',
   [SubscriptionType.Premium]: `idkfa`,
-  [SubscriptionType.Lifetime]: `iddqd`,
+  [SubscriptionType.Founder]: `iddqd`,
 }
 
 export const PLAN_NICKS = {
   [SubscriptionType.Legacy]: 'legacy',
   [SubscriptionType.Free]: 'free',
   [SubscriptionType.Premium]: `premium`,
-  [SubscriptionType.Lifetime]: `lifetime`,
+  [SubscriptionType.Founder]: `founder`,
 }
 
 export type UserFields = BaseFields & {

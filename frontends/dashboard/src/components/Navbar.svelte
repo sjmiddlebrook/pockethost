@@ -84,7 +84,7 @@
         {#if $userSubscriptionType === SubscriptionType.Premium}
           <p>Your membership is active. Thank you for supporting PocketHost!</p>
         {/if}
-        {#if $userSubscriptionType === SubscriptionType.Lifetime}
+        {#if $userSubscriptionType === SubscriptionType.Founder}
           <p>
             What an absolute chad you are. Thank you for supporting PocketHost
             with a Special Edition lifetime membership!

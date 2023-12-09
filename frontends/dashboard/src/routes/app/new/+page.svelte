@@ -9,7 +9,7 @@
   let canCreate = false
   $: {
     instanceCount = values($globalInstancesStore).length
-    canCreate = [SubscriptionType.Lifetime, SubscriptionType.Premium].includes(
+    canCreate = [SubscriptionType.Founder, SubscriptionType.Premium].includes(
       $userSubscriptionType,
     )
   }

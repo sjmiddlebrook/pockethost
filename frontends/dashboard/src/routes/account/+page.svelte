@@ -1,8 +1,14 @@
 <script>
+  import idclip from '$assets/idclip.png?as=run'
+  import iddqd from '$assets/iddqd.jpg?as=run'
+  import idkfaAnnual from '$assets/idkfa-annual.png?as=run'
+  import idkfaSpecial from '$assets/idkfa-special-edition.png?as=run'
+  import idkfa from '$assets/idkfa.png?as=run'
   import AuthStateGuard from '$components/helpers/AuthStateGuard.svelte'
   import { PLAN_NAMES, PLAN_NICKS, SubscriptionType } from '$shared'
   import { DISCORD_URL } from '$src/env'
   import { userSubscriptionType } from '$util/stores'
+  import Img from '@zerodevx/svelte-img'
 </script>
 
 <AuthStateGuard>
@@ -16,6 +22,8 @@
         ? `bg-neutral`
         : 'bg-base-100'} shadow-xl"
     >
+      <figure><Img src={idclip} alt="idclip" /></figure>
+
       <div class="card-body">
         <h2 class="card-title font-mono">
           {PLAN_NAMES[SubscriptionType.Free]}
@@ -40,6 +48,7 @@
         ? `bg-neutral`
         : 'bg-base-100'} shadow-xl"
     >
+      <figure><Img src={idkfa} alt="idkfa" /></figure>
       <div class="card-body">
         <h2 class="card-title font-mono">
           {PLAN_NAMES[SubscriptionType.Premium]}
@@ -68,6 +77,31 @@
             href="https://buy.stripe.com/fZe6sd8Mkfc30Kc4gg"
             target="_blank">$20/mo</a
           >
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-10">
+    <div
+      class="card w-96 {$userSubscriptionType === SubscriptionType.Premium
+        ? `bg-neutral`
+        : 'bg-base-100'} shadow-xl"
+    >
+      <figure><Img src={idkfaAnnual} alt="idkfa" /></figure>
+      <div class="card-body">
+        <h2 class="card-title font-mono">
+          {PLAN_NAMES[SubscriptionType.Premium]}
+          <span class="text-primary font-sans"
+            >{PLAN_NICKS[SubscriptionType.Premium]}</span
+          >
+        </h2>
+        <ul class="list-disc">
+          <li>Everything in the {PLAN_NAMES[SubscriptionType.Premium]} tier</li>
+          <li>Special Discord badge</li>
+        </ul>
+
+        <div class="card-actions justify-end">
           <a
             class="btn btn-primary"
             href="https://buy.stripe.com/bIYeYJbYwd3VdwY289"
@@ -80,6 +114,7 @@
 
   <div class="m-10">
     <div class="card w-96 bg-base-100 shadow-xl">
+      <figure><Img src={idkfaSpecial} alt="idkfa" /></figure>
       <div class="card-body">
         <h2 class="card-title font-mono">
           {PLAN_NAMES[SubscriptionType.Premium]}
@@ -87,11 +122,12 @@
         </h2>
 
         <p class="text-info text-xl text-center">100 remaining</p>
-        <p>
-          Same as {PLAN_NAMES[SubscriptionType.Premium]}, but with Special
-          Edition pricing
-        </p>
+
         <ul class="list-disc">
+          <li>
+            Same as {PLAN_NAMES[SubscriptionType.Premium]}, but with Special
+            Edition pricing
+          </li>
           <li>
             Special Edition {PLAN_NAMES[SubscriptionType.Premium]} Discord badge
           </li>
@@ -110,28 +146,28 @@
 
   <div class="m-10">
     <div
-      class="card w-96 {$userSubscriptionType === SubscriptionType.Lifetime
+      class="card w-96 {$userSubscriptionType === SubscriptionType.Founder
         ? `bg-neutral`
         : 'bg-base-100'} shadow-xl"
     >
+      <figure><Img src={iddqd} alt="iddqd" /></figure>
       <div class="card-body">
         <h2 class="card-title font-mono">
-          {PLAN_NAMES[SubscriptionType.Lifetime]}
-          <span class="text-primary font-sans">Lifetime Edition</span>
+          {PLAN_NAMES[SubscriptionType.Founder]}
+          <span class="text-primary font-sans">Founder's Lifetime Edition</span>
         </h2>
         <p class="text-info text-xl text-center">100 remaining</p>
         <p>
           As a way of saying thank you to the PocketHost community, we are
-          offering lifetime memberships. Pay once, use PocketHost forever.
-        </p>
-        <p>
-          Everything in the {PLAN_NAMES[SubscriptionType.Premium]} tier, plus...
+          offering a limited supply of Founder's lifetime memberships. Pay once,
+          use PocketHost forever.
         </p>
 
         <ul class="list-disc">
           <li>
-            Commemorative Founder's Edition lifetime membership badge on Discord
+            Everything in the {PLAN_NAMES[SubscriptionType.Premium]} tier, plus...
           </li>
+          <li>Limited Edition Founder's badge on Discord</li>
         </ul>
 
         <div class="card-actions justify-end">
