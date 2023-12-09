@@ -1,4 +1,9 @@
-import { type InstanceFields, type InstanceId } from '$shared'
+import {
+  SubscriptionType,
+  UserFields,
+  type InstanceFields,
+  type InstanceId,
+} from '$shared'
 import { client } from '$src/pocketbase-client'
 import { UnsubscribeFunc } from 'pocketbase'
 import { writable } from 'svelte/store'
@@ -8,6 +13,7 @@ import '../services'
 
 const { onAuthChange } = client()
 
+export const userSubscriptionType = writable(SubscriptionType.Legacy)
 export const isUserLoggedIn = writable(false)
 export const isUserVerified = writable(false)
 export const isAuthStateInitialized = writable(false)
@@ -16,8 +22,10 @@ export const isAuthStateInitialized = writable(false)
  * Listen for auth change events. When we get at least one, the auth state is initialized.
  */
 onAuthChange((authStoreProps) => {
+  const user = authStoreProps.model as UserFields | undefined
+  userSubscriptionType.set(user?.subscription || SubscriptionType.Legacy)
   isUserLoggedIn.set(authStoreProps.isValid)
-  isUserVerified.set(!!authStoreProps.model?.verified)
+  isUserVerified.set(!!user?.verified)
   isAuthStateInitialized.set(true)
 })
 

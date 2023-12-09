@@ -2,12 +2,13 @@
   import { page } from '$app/stores'
   import Logo from '$components/Logo.svelte'
   import MediaQuery from '$components/MediaQuery.svelte'
+  import { PLAN_NAMES, PLAN_NICKS, SubscriptionType } from '$shared'
   import { DISCORD_URL, DOCS_URL } from '$src/env'
+  import { client } from '$src/pocketbase-client'
   import InstancesGuard from '$src/routes/InstancesGuard.svelte'
-  import { globalInstancesStore } from '$util/stores'
+  import { globalInstancesStore, userSubscriptionType } from '$util/stores'
   import { values } from '@s-libs/micro-dash'
   import UserLoggedIn from './helpers/UserLoggedIn.svelte'
-  import { client } from '$src/pocketbase-client'
 
   type TypeInstanceObject = {
     id: string
@@ -58,6 +59,40 @@
   </MediaQuery>
 
   <div class="flex flex-col gap-2 mb-auto">
+    <div class="card w-52 bg-accent shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">
+          {PLAN_NAMES[$userSubscriptionType]} ({PLAN_NICKS[
+            $userSubscriptionType
+          ]})
+        </h2>
+        {#if $userSubscriptionType === SubscriptionType.Free}
+          <p>You're on the free plan. Unlock more by upgrading.</p>
+          <div class="card-actions justify-end">
+            <a class="btn btn-primary" href="/account">Upgrade</a>
+          </div>
+        {/if}
+        {#if $userSubscriptionType === SubscriptionType.Legacy}
+          <p>
+            You're on the legacy plan. Please consider upgrading to support
+            PocketHost. This plan may be sunset eventually.
+          </p>
+          <div class="card-actions justify-end">
+            <a class="btn btn-primary" href="/account">Upgrade</a>
+          </div>
+        {/if}
+        {#if $userSubscriptionType === SubscriptionType.Premium}
+          <p>Your membership is active. Thank you for supporting PocketHost!</p>
+        {/if}
+        {#if $userSubscriptionType === SubscriptionType.Lifetime}
+          <p>
+            What an absolute chad you are. Thank you for supporting PocketHost
+            with a Special Edition lifetime membership!
+          </p>
+        {/if}
+      </div>
+    </div>
+
     <a on:click={handleClick} href="/" class={linkClasses}>
       <i
         class="fa-regular fa-table-columns {$page.url.pathname === '/' &&
@@ -93,6 +128,12 @@
         </a>
       </div>
     </InstancesGuard>
+
+    <UserLoggedIn>
+      <a href="/account" class={linkClasses} rel="noreferrer">
+        <i class="fa-regular fa-user"></i> My Account
+      </a>
+    </UserLoggedIn>
 
     <a href={DISCORD_URL} class={linkClasses} target="_blank" rel="noreferrer"
       ><i class="fa-regular fa-comment-code"></i> Support
