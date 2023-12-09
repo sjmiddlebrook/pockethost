@@ -23,7 +23,7 @@ export const isAuthStateInitialized = writable(false)
  */
 onAuthChange((authStoreProps) => {
   const user = authStoreProps.model as UserFields | undefined
-  userSubscriptionType.set(user?.subscription || SubscriptionType.Legacy)
+  userSubscriptionType.set(user?.subscription || SubscriptionType.Free)
   isUserLoggedIn.set(authStoreProps.isValid)
   isUserVerified.set(!!user?.verified)
   isAuthStateInitialized.set(true)

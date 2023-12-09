@@ -9,7 +9,7 @@ migrate((db) => {
     "id": "7jf2i4be",
     "name": "subscription",
     "type": "select",
-    "required": false,
+    "required": true,
     "presentable": false,
     "unique": false,
     "options": {
@@ -17,12 +17,15 @@ migrate((db) => {
       "values": [
         "free",
         "premium",
-        "lifetime"
+        "lifetime",
+        "legacy"
       ]
     }
   }))
 
-  return dao.saveCollection(collection)
+   return dao.saveCollection(collection)
+
+   
 }, (db) => {
   const dao = new Dao(db)
   const collection = dao.findCollectionByNameOrId("systemprofiles0")
