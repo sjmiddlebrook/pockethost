@@ -1,9 +1,9 @@
 <script lang="ts">
-  import paywall from '$assets/paywall.png?enhanced'
+  import paywall from '$assets/paywall.png'
 </script>
 
 <div class="card w-96 bg-base-100 shadow-xl">
-  <figure><img src={paywall.img.src} alt="paywall" /></figure>
+  <figure><img src={paywall} alt="paywall" /></figure>
   <div class="card-body">
     <h2 class="card-title">Paywall!</h2>
     <p>
