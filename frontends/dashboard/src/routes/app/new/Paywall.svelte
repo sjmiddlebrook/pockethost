@@ -1,9 +1,10 @@
 <script lang="ts">
-  import paywall from '$assets/paywall.png'
+  import paywall from '$assets/paywall.png?as=run'
+  import Img from '@zerodevx/svelte-img'
 </script>
 
 <div class="card w-96 bg-base-100 shadow-xl">
-  <figure><img src={paywall} alt="paywall" /></figure>
+  <figure><Img src={paywall} alt="paywall" /></figure>
   <div class="card-body">
     <h2 class="card-title">Paywall!</h2>
     <p>

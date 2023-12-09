@@ -1,4 +1,4 @@
-declare module '*?enhanced' {
-  const value: { img: { src: string } }
-  export = value
+declare module '$assets/*' {
+  var meta
+  export default meta
 }
