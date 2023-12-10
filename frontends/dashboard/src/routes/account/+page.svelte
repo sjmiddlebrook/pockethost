@@ -12,11 +12,13 @@
 </script>
 
 <AuthStateGuard>
-  <h2>My Account</h2>
-  <h2>Current Plan</h2>
-  {PLAN_NAMES[$userSubscriptionType]} ({$userSubscriptionType})
-
   <div class="m-10">
+    <h2>My Account</h2>
+    <h2>Current Plan</h2>
+    {PLAN_NAMES[$userSubscriptionType]} ({$userSubscriptionType})
+  </div>
+
+  <div class="m-10 inline-block">
     <div
       class="card w-96 {$userSubscriptionType === SubscriptionType.Free
         ? `bg-neutral`
@@ -31,9 +33,14 @@
             >{PLAN_NICKS[SubscriptionType.Free]}</span
           >
         </h2>
+        <p>
+          For the frugal dev, or just starting out. Use PocketHost free, with
+          fair-use unlimited resources. Build your next killer app powered by
+          PocketHost.
+        </p>
         <ul class="list-disc">
           <li>1 project</li>
-          <li>Unlimited bandwidth, storage, and CPU</li>
+          <li>Unlimited (fair use) bandwidth, storage, and CPU</li>
           <li>Community support via Discord</li>
           <li>FTP access to PocketBase data, migrations, hooks, and files</li>
           <li>Static frontend hosting</li>
@@ -42,7 +49,7 @@
     </div>
   </div>
 
-  <div class="m-10">
+  <div class="m-10 inline-block">
     <div
       class="card w-96 {$userSubscriptionType === SubscriptionType.Premium
         ? `bg-neutral`
@@ -56,6 +63,11 @@
             >{PLAN_NICKS[SubscriptionType.Premium]}</span
           >
         </h2>
+        <p>
+          Unlock more power with the {PLAN_NAMES[SubscriptionType.Premium]} cheat
+          code. The same rock-solid PocketHost service (99.9% uptime), plus unlimited
+          projects.
+        </p>
         <ul class="list-disc">
           <li>Everything in the free tier</li>
           <li>Unlimited projects</li>
@@ -82,7 +94,7 @@
     </div>
   </div>
 
-  <div class="m-10">
+  <div class="m-10 inline-block">
     <div
       class="card w-96 {$userSubscriptionType === SubscriptionType.Premium
         ? `bg-neutral`
@@ -96,6 +108,10 @@
             >{PLAN_NICKS[SubscriptionType.Premium]}</span
           >
         </h2>
+        <p>
+          Save 20% with an annual subscription and a fancy badge so people know
+          you're in it for the long haul.
+        </p>
         <ul class="list-disc">
           <li>Everything in the {PLAN_NAMES[SubscriptionType.Premium]} tier</li>
           <li>Special Discord badge</li>
@@ -112,7 +128,7 @@
     </div>
   </div>
 
-  <div class="m-10">
+  <div class="m-10 inline-block">
     <div class="card w-96 bg-base-100 shadow-xl">
       <figure><Img src={idkfaSpecial} alt="idkfa" /></figure>
       <div class="card-body">
@@ -122,7 +138,11 @@
         </h2>
 
         <p class="text-info text-xl text-center">100 remaining</p>
-
+        <p>
+          LIMITED SUPPLY - To help launch PocketHost's paid plan, the first 100
+          annual subscriptions are 50% off. And, you'll get a limited edition
+          Discord badge.
+        </p>
         <ul class="list-disc">
           <li>
             Same as {PLAN_NAMES[SubscriptionType.Premium]}, but with Special
@@ -144,28 +164,30 @@
     </div>
   </div>
 
-  <div class="m-10">
+  <div class="m-10 inline-block">
     <div
-      class="card w-96 {$userSubscriptionType === SubscriptionType.Founder
+      class="card w-96 {$userSubscriptionType === SubscriptionType.Lifetime
         ? `bg-neutral`
         : 'bg-base-100'} shadow-xl"
     >
       <figure><Img src={iddqd} alt="iddqd" /></figure>
       <div class="card-body">
         <h2 class="card-title font-mono">
-          {PLAN_NAMES[SubscriptionType.Founder]}
+          {PLAN_NAMES[SubscriptionType.Lifetime]}
           <span class="text-primary font-sans">Founder's Lifetime Edition</span>
         </h2>
         <p class="text-info text-xl text-center">100 remaining</p>
         <p>
-          As a way of saying thank you to the PocketHost community, we are
-          offering a limited supply of Founder's lifetime memberships. Pay once,
-          use PocketHost forever.
+          LIMITED SUPPLY - Pay once, use PocketHost forever. For the ultimate
+          love in your life, just in time for Christmas. Enjoy a Founder's
+          membership in PocketHost. Pay once, and you'll have access to
+          everything in the {PLAN_NAMES[SubscriptionType.Premium]} plan - for life.
+          Plus a badass ultra limited edition Founder's badge.
         </p>
 
         <ul class="list-disc">
           <li>
-            Everything in the {PLAN_NAMES[SubscriptionType.Premium]} tier, plus...
+            Everything in the {PLAN_NAMES[SubscriptionType.Premium]} tier
           </li>
           <li>Limited Edition Founder's badge on Discord</li>
         </ul>
@@ -181,50 +203,54 @@
     </div>
   </div>
 
-  <div class="m-10">
-    <div class="card w-96 bg-base-100 shadow-xl">
-      <div class="card-body">
-        <h2 class="card-title">Fair Use Policy</h2>
-        <p>
-          When we say 'unlimited', we mean it in the Fair Use sense of the word.
-          Obviously, everything has limits. In our study of PocketHost usage
-          patterns, we found that even the busiest and most successful
-          PocketHost instances rarely stress our system.
-        </p>
-        <p>
-          PocketHost is a haven for developers who want to launch and iterate
-          quickly on ideas without worrying about metering and infrastructure.
-        </p>
-        <p>
-          If your app gets big and it starts affecting the system, we'll talk
-          about an enterprise plan or a dedicated setup.
-        </p>
-        <p>
-          Please enjoy PocketHost knowing that you can use as much storage,
-          bandwidth, and CPU as your application requires under normal operating
-          conditions. Let us handle the hosting so you can get back to work.
-        </p>
+  <div>
+    <div class="m-10 inline-block">
+      <div class="card w-96 bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">Fair Use Policy</h2>
+          <p>
+            When we say 'unlimited', we mean it in the Fair Use sense of the
+            word. Obviously, everything has limits. In our study of PocketHost
+            usage patterns, we found that even the busiest and most successful
+            PocketHost instances rarely stress our system.
+          </p>
+          <p>
+            PocketHost is a haven for developers who want to launch and iterate
+            quickly on ideas without worrying about metering and infrastructure.
+          </p>
+          <p>
+            If your app gets big and it starts affecting the system, we'll talk
+            about an enterprise plan or a dedicated setup.
+          </p>
+          <p>
+            Please enjoy PocketHost knowing that you can use as much storage,
+            bandwidth, and CPU as your application requires under normal
+            operating conditions. Let us handle the hosting so you can get back
+            to work.
+          </p>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="m-10">
-    <div class="card w-96 bg-base-100 shadow-xl">
-      <div class="card-body">
-        <h2 class="card-title">Cancellation and Refunds</h2>
-        <p>Short version: We only want your money if you are happy.</p>
-        <p>
-          Long version: If you need to cancel your membership for any reason,
-          please <a class="link" href={DISCORD_URL}
-            >contact @noaxis on Discord</a
-          >. If you cancel within the first 5 days of a signup or renewal, we'll
-          refund the full amount. Otherwise, we'll pro-rate it. Sound good?
-        </p>
-        <p>
-          If you create additional instances and then downgrade to the free
-          plan, the extra instances will remain accessible in your dashboard,
-          but they will not run.
-        </p>
+    <div class="m-10 inline-block">
+      <div class="card w-96 bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">Cancellation and Refunds</h2>
+          <p>Short version: We only want your money if you are happy.</p>
+          <p>
+            Long version: If you need to cancel your membership for any reason,
+            please <a class="link" href={DISCORD_URL}
+              >contact @noaxis on Discord</a
+            >. If you cancel within the first 5 days of a signup or renewal,
+            we'll refund the full amount. Otherwise, we'll pro-rate it. Sound
+            good?
+          </p>
+          <p>
+            If you create additional instances and then downgrade to the free
+            plan, the extra instances will remain accessible in your dashboard,
+            but they will not run.
+          </p>
+        </div>
       </div>
     </div>
   </div>

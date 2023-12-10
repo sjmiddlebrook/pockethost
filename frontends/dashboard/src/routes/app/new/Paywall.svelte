@@ -15,9 +15,7 @@
       this much!
     </p>
     <div class="card-actions justify-end">
-      <a href="/account" class="btn btn-primary"
-        >Upgrade to Unlimited Projects</a
-      >
+      <a href="/account" class="btn btn-primary">Unlock Unlimited Projects</a>
     </div>
   </div>
 </div>
