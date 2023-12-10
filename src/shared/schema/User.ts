@@ -8,21 +8,16 @@ export enum SubscriptionType {
 }
 
 export const PLAN_NAMES = {
-  [SubscriptionType.Legacy]: 'idspispopd',
-  [SubscriptionType.Free]: 'idclip',
-  [SubscriptionType.Premium]: `idkfa`,
-  [SubscriptionType.Lifetime]: `iddqd`,
-}
-
-export const PLAN_NICKS = {
-  [SubscriptionType.Legacy]: 'legacy',
-  [SubscriptionType.Free]: 'free',
-  [SubscriptionType.Premium]: `premium`,
-  [SubscriptionType.Lifetime]: `founder`,
+  [SubscriptionType.Legacy]: 'Legacy',
+  [SubscriptionType.Free]: 'Hacker',
+  [SubscriptionType.Premium]: `Pro`,
+  [SubscriptionType.Lifetime]: `Lifetime`,
 }
 
 export type UserFields = BaseFields & {
   email: string
   verified: boolean
+  isLegacy: boolean
+  isFounder: boolean
   subscription: SubscriptionType
 }

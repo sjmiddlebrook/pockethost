@@ -13,8 +13,10 @@ import '../services'
 
 const { onAuthChange } = client()
 
+export const isUserLegacy = writable(false)
 export const userSubscriptionType = writable(SubscriptionType.Legacy)
 export const isUserLoggedIn = writable(false)
+export const isUserFounder = writable(false)
 export const isUserVerified = writable(false)
 export const isAuthStateInitialized = writable(false)
 
@@ -23,6 +25,8 @@ export const isAuthStateInitialized = writable(false)
  */
 onAuthChange((authStoreProps) => {
   const user = authStoreProps.model as UserFields | undefined
+  isUserLegacy.set(!!user?.isLegacy)
+  isUserFounder.set(!!user?.isFounder)
   userSubscriptionType.set(user?.subscription || SubscriptionType.Free)
   isUserLoggedIn.set(authStoreProps.isValid)
   isUserVerified.set(!!user?.verified)

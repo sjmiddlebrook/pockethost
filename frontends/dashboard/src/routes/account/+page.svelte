@@ -1,209 +1,128 @@
 <script>
-  import idclip from '$assets/idclip.png?as=run'
-  import iddqd from '$assets/iddqd.jpg?as=run'
-  import idkfaAnnual from '$assets/idkfa-annual.png?as=run'
-  import idkfaSpecial from '$assets/idkfa-special-edition.png?as=run'
-  import idkfa from '$assets/idkfa.png?as=run'
   import AuthStateGuard from '$components/helpers/AuthStateGuard.svelte'
-  import { PLAN_NAMES, PLAN_NICKS, SubscriptionType } from '$shared'
+  import { PLAN_NAMES, SubscriptionType } from '$shared'
   import { DISCORD_URL } from '$src/env'
-  import { userSubscriptionType } from '$util/stores'
-  import Img from '@zerodevx/svelte-img'
+  import {
+    isUserFounder,
+    isUserLegacy,
+    userSubscriptionType,
+  } from '$util/stores'
+  import Card from './Card.svelte'
 </script>
 
 <AuthStateGuard>
   <div class="m-10">
-    <h2>My Account</h2>
-    <h2>Current Plan</h2>
-    {PLAN_NAMES[$userSubscriptionType]} ({$userSubscriptionType})
+    <h2 class="text-2xl">My Account</h2>
+    <h2>Current Plan: {PLAN_NAMES[$userSubscriptionType]}</h2>
   </div>
 
-  <div class="m-10 inline-block">
-    <div
-      class="card w-96 {$userSubscriptionType === SubscriptionType.Free
-        ? `bg-neutral`
-        : 'bg-base-100'} shadow-xl"
+  {#if $isUserLegacy}
+    <Card
+      name={PLAN_NAMES[SubscriptionType.Legacy]}
+      active={$userSubscriptionType === SubscriptionType.Legacy}
+      features={[
+        `Access to existing projects and legacy features`,
+        `Unlimited (fair use) bandwith, storage, and CPU`,
+        `Community support via Discord`,
+        `FTP access to PocketBase data, hooks, migrations, and files`,
+        `Run every version of PocketBase`,
+      ]}
+    />
+  {:else}
+    <Card
+      name={PLAN_NAMES[SubscriptionType.Free]}
+      active={$userSubscriptionType === SubscriptionType.Free}
+      features={[
+        `1 project`,
+        `Unlimited (fair use) bandwith, storage, and CPU`,
+        `Community support via Discord`,
+        `FTP access to PocketBase data, hooks, migrations, and files`,
+        `Run every version of PocketBase`,
+      ]}
+    />
+  {/if}
+
+  {#if [SubscriptionType.Free, SubscriptionType.Legacy].includes($userSubscriptionType)}
+    <Card
+      name={PLAN_NAMES[SubscriptionType.Premium]}
+      active={$userSubscriptionType === SubscriptionType.Premium}
+      features={[
+        `Everything in the free tier`,
+        `Unlimited projects`,
+        `Priority support channel on Discord`,
+      ]}
+      upgradable={[SubscriptionType.Free, SubscriptionType.Legacy].includes(
+        $userSubscriptionType,
+      )}
+      prices={[
+        { title: `$20/mo`, link: `https://buy.stripe.com/fZe6sd8Mkfc30Kc4gg` },
+        {
+          title: `$199/yr (save 20%)`,
+          link: `https://buy.stripe.com/bIYeYJbYwd3VdwY289`,
+        },
+      ]}
     >
-      <figure><Img src={idclip} alt="idclip" /></figure>
-
-      <div class="card-body">
-        <h2 class="card-title font-mono">
-          {PLAN_NAMES[SubscriptionType.Free]}
-          <span class="text-primary font-sans"
-            >{PLAN_NICKS[SubscriptionType.Free]}</span
-          >
-        </h2>
-        <p>
-          For the frugal dev, or just starting out. Use PocketHost free, with
-          fair-use unlimited resources. Build your next killer app powered by
-          PocketHost.
-        </p>
-        <ul class="list-disc">
-          <li>1 project</li>
-          <li>Unlimited (fair use) bandwidth, storage, and CPU</li>
-          <li>Community support via Discord</li>
-          <li>FTP access to PocketBase data, migrations, hooks, and files</li>
-          <li>Static frontend hosting</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="m-10 inline-block">
-    <div
-      class="card w-96 {$userSubscriptionType === SubscriptionType.Premium
-        ? `bg-neutral`
-        : 'bg-base-100'} shadow-xl"
+      <p>
+        We have a lot of ideas for premium features. Please check our <a
+          class="link"
+          target="_blank"
+          href="https://discord.com/channels/1128192380500193370/1180219900107706409"
+          >Discord discussion</a
+        > to join in the conversation.
+      </p></Card
     >
-      <figure><Img src={idkfa} alt="idkfa" /></figure>
-      <div class="card-body">
-        <h2 class="card-title font-mono">
-          {PLAN_NAMES[SubscriptionType.Premium]}
-          <span class="text-primary font-sans"
-            >{PLAN_NICKS[SubscriptionType.Premium]}</span
-          >
-        </h2>
-        <p>
-          Unlock more power with the {PLAN_NAMES[SubscriptionType.Premium]} cheat
-          code. The same rock-solid PocketHost service (99.9% uptime), plus unlimited
-          projects.
-        </p>
-        <ul class="list-disc">
-          <li>Everything in the free tier</li>
-          <li>Unlimited projects</li>
-          <li>Priority support channel on Discord</li>
-          <li>{PLAN_NAMES[SubscriptionType.Premium]} Discord badge</li>
-        </ul>
-        <p>
-          We have a lot of ideas for premium features. Please check our <a
-            class="link"
-            target="_blank"
-            href="https://discord.com/channels/1128192380500193370/1180219900107706409"
-            >Discord discussion</a
-          > to join in the conversation.
-        </p>
+  {/if}
 
-        <div class="card-actions justify-end">
-          <a
-            class="btn btn-primary"
-            href="https://buy.stripe.com/fZe6sd8Mkfc30Kc4gg"
-            target="_blank">$20/mo</a
-          >
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="m-10 inline-block">
-    <div
-      class="card w-96 {$userSubscriptionType === SubscriptionType.Premium
-        ? `bg-neutral`
-        : 'bg-base-100'} shadow-xl"
+  {#if [SubscriptionType.Free, SubscriptionType.Legacy, SubscriptionType.Lifetime].includes($userSubscriptionType) || $isUserFounder}
+    <Card
+      name={`🎉 🎈 Founder's Edition 🎊 🍄`}
+      active={$isUserFounder}
+      features={[
+        `Everything in the Pro tier`,
+        `Founder's badge on Discord`,
+        `Official PocketHost mug or tee`,
+      ]}
+      limit={100}
+      upgradable
+      prices={[
+        {
+          title: `$99/yr (50% savings)`,
+          link: `https://buy.stripe.com/aEUdUF7Igfc350s28a`,
+        },
+        {
+          title: `$299 lifetime`,
+          link: `https://buy.stripe.com/7sIg2N6Ecgg70KcdQT`,
+        },
+      ]}
     >
-      <figure><Img src={idkfaAnnual} alt="idkfa" /></figure>
-      <div class="card-body">
-        <h2 class="card-title font-mono">
-          {PLAN_NAMES[SubscriptionType.Premium]}
-          <span class="text-primary font-sans"
-            >{PLAN_NICKS[SubscriptionType.Premium]}</span
-          >
-        </h2>
-        <p>
-          Save 20% with an annual subscription and a fancy badge so people know
-          you're in it for the long haul.
-        </p>
-        <ul class="list-disc">
-          <li>Everything in the {PLAN_NAMES[SubscriptionType.Premium]} tier</li>
-          <li>Special Discord badge</li>
-        </ul>
-
-        <div class="card-actions justify-end">
-          <a
-            class="btn btn-primary"
-            href="https://buy.stripe.com/bIYeYJbYwd3VdwY289"
-            target="_blank">$199/yr (save 20%)</a
-          >
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="m-10 inline-block">
-    <div class="card w-96 bg-base-100 shadow-xl">
-      <figure><Img src={idkfaSpecial} alt="idkfa" /></figure>
-      <div class="card-body">
-        <h2 class="card-title font-mono">
-          {PLAN_NAMES[SubscriptionType.Premium]}
-          <span class="text-primary font-sans">Special Edition</span>
-        </h2>
-
-        <p class="text-info text-xl text-center">100 remaining</p>
-        <p>
-          LIMITED SUPPLY - To help launch PocketHost's paid plan, the first 100
-          annual subscriptions are 50% off. And, you'll get a limited edition
-          Discord badge.
-        </p>
-        <ul class="list-disc">
-          <li>
-            Same as {PLAN_NAMES[SubscriptionType.Premium]}, but with Special
-            Edition pricing
-          </li>
-          <li>
-            Special Edition {PLAN_NAMES[SubscriptionType.Premium]} Discord badge
-          </li>
-        </ul>
-
-        <div class="card-actions justify-end">
-          <a
-            class="btn btn-primary"
-            href="https://buy.stripe.com/aEUdUF7Igfc350s28a"
-            target="_blank">$99/yr</a
-          >
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="m-10 inline-block">
-    <div
-      class="card w-96 {$userSubscriptionType === SubscriptionType.Lifetime
-        ? `bg-neutral`
-        : 'bg-base-100'} shadow-xl"
-    >
-      <figure><Img src={iddqd} alt="iddqd" /></figure>
-      <div class="card-body">
-        <h2 class="card-title font-mono">
-          {PLAN_NAMES[SubscriptionType.Lifetime]}
-          <span class="text-primary font-sans">Founder's Lifetime Edition</span>
-        </h2>
-        <p class="text-info text-xl text-center">100 remaining</p>
-        <p>
-          LIMITED SUPPLY - Pay once, use PocketHost forever. For the ultimate
-          love in your life, just in time for Christmas. Enjoy a Founder's
-          membership in PocketHost. Pay once, and you'll have access to
-          everything in the {PLAN_NAMES[SubscriptionType.Premium]} plan - for life.
-          Plus a badass ultra limited edition Founder's badge.
-        </p>
-
-        <ul class="list-disc">
-          <li>
-            Everything in the {PLAN_NAMES[SubscriptionType.Premium]} tier
-          </li>
-          <li>Limited Edition Founder's badge on Discord</li>
-        </ul>
-
-        <div class="card-actions justify-end">
-          <a
-            class="btn btn-primary"
-            href="https://buy.stripe.com/7sIg2N6Ecgg70KcdQT"
-            target="_blank">$299</a
-          >
-        </div>
-      </div>
-    </div>
-  </div>
+      <p class="text-info text-xl">
+        Super elite! The Founder's Edition is our way of saying thanks for
+        supporting PocketHost in these early days.
+      </p>
+    </Card>
+  {/if}
 
   <div>
+    {#if $isUserLegacy}
+      <div class="m-10 inline-block">
+        <div class="card w-96 bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title">Legacy Account Policy</h2>
+            <p>
+              Legacy accounts have access to existing projects and features, but
+              cannot create new projects or use new features.
+            </p>
+            <p>
+              If you upgrade to a paid plan and then downgrade again, you will
+              still have access to your Legacy projects and features, but any
+              new projects and features created on a paid plan will no longer
+              work.
+            </p>
+          </div>
+        </div>
+      </div>
+    {/if}
+
     <div class="m-10 inline-block">
       <div class="card w-96 bg-base-100 shadow-xl">
         <div class="card-body">

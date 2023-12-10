@@ -2,12 +2,12 @@
   import { page } from '$app/stores'
   import Logo from '$components/Logo.svelte'
   import MediaQuery from '$components/MediaQuery.svelte'
-  import { PLAN_NAMES, PLAN_NICKS, SubscriptionType } from '$shared'
   import { DISCORD_URL, DOCS_URL } from '$src/env'
   import { client } from '$src/pocketbase-client'
   import InstancesGuard from '$src/routes/InstancesGuard.svelte'
-  import { globalInstancesStore, userSubscriptionType } from '$util/stores'
+  import { globalInstancesStore } from '$util/stores'
   import { values } from '@s-libs/micro-dash'
+  import SubscriptionStatus from './SubscriptionStatus.svelte'
   import UserLoggedIn from './helpers/UserLoggedIn.svelte'
 
   type TypeInstanceObject = {
@@ -49,7 +49,7 @@
   }
 </script>
 
-<aside class="p-4 min-w-[250px] flex flex-col h-screen">
+<aside class="p-4 min-w-[250px] max-w-[250px] flex flex-col">
   <MediaQuery query="(min-width: 1280px)" let:matches>
     {#if matches}
       <a href="/" class="flex gap-2 items-center justify-center">
@@ -59,42 +59,7 @@
   </MediaQuery>
 
   <div class="flex flex-col gap-2 mb-auto">
-    <div class="card w-52 bg-accent shadow-xl">
-      <div class="card-body">
-        <h2 class="card-title">
-          {PLAN_NAMES[$userSubscriptionType]} ({PLAN_NICKS[
-            $userSubscriptionType
-          ]})
-        </h2>
-        {#if $userSubscriptionType === SubscriptionType.Free}
-          <p>
-            You're on the free plan. Unlock more features such as unlimited
-            projects.
-          </p>
-          <div class="card-actions justify-end">
-            <a class="btn btn-primary" href="/account">Unlock</a>
-          </div>
-        {/if}
-        {#if $userSubscriptionType === SubscriptionType.Legacy}
-          <p>
-            You're on the legacy plan. Unlock more features by supporting
-            PocketHost. This plan may be sunset eventually.
-          </p>
-          <div class="card-actions justify-end">
-            <a class="btn btn-primary" href="/account">Unlock</a>
-          </div>
-        {/if}
-        {#if $userSubscriptionType === SubscriptionType.Premium}
-          <p>Your membership is active. Thank you for supporting PocketHost!</p>
-        {/if}
-        {#if $userSubscriptionType === SubscriptionType.Lifetime}
-          <p>
-            What an absolute chad you are. Thank you for supporting PocketHost
-            with a Special Edition lifetime membership!
-          </p>
-        {/if}
-      </div>
-    </div>
+    <SubscriptionStatus {handleClick} />
 
     <a on:click={handleClick} href="/" class={linkClasses}>
       <i
@@ -133,7 +98,12 @@
     </InstancesGuard>
 
     <UserLoggedIn>
-      <a href="/account" class={linkClasses} rel="noreferrer">
+      <a
+        href="/account"
+        class={linkClasses}
+        rel="noreferrer"
+        on:click={handleClick}
+      >
         <i class="fa-regular fa-user"></i> My Account
       </a>
     </UserLoggedIn>
