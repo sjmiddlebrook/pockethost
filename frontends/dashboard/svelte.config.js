@@ -12,7 +12,6 @@ const config = {
       fallback: 'index.html',
     }),
     alias: {
-      $assets: './src/assets',
       $components: './src/components',
       $util: './src/util',
       $src: './src',

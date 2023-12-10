@@ -237,9 +237,6 @@ importers:
       '@types/js-cookie':
         specifier: ^3.0.2
         version: 3.0.5
-      '@zerodevx/svelte-img':
-        specifier: ^2.1.0
-        version: 2.1.0(svelte@4.2.2)
       autoprefixer:
         specifier: ^10.4.16
         version: 10.4.16(postcss@8.4.31)
@@ -922,20 +919,6 @@ packages:
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
     dev: true
 
-  /@rollup/pluginutils@5.1.0:
-    resolution: {integrity: sha512-XTIWOPPcpvyKI6L1NHo0lFlCyznUEyPmPY1mc3KpPVDYulHSTvyeLNVW00QTLIAFNhR3kYnJTQHeGqU4M3n09g==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-    dependencies:
-      '@types/estree': 1.0.4
-      estree-walker: 2.0.2
-      picomatch: 2.3.1
-    dev: true
-
   /@s-libs/micro-dash@16.1.0:
     resolution: {integrity: sha512-GmmtRb/vNl1RxErvm/d+ITfjbo4og/CXyYdqs4vpeFrJla0uSEbXwf9aJUXYvgORQDgXV6h9tdgDY6T88FRU3Q==}
     dependencies:
@@ -1412,17 +1395,6 @@ packages:
     resolution: {integrity: sha512-Cior/4Y78R1ZVF6tnWEHWIkAMDqKxU5pPCbaC62826oEfchPGg90fKdi3sLZ2D7oB7GrFu3+PW2elEMBOtd27w==}
     dependencies:
       '@types/node': 20.8.10
-    dev: true
-
-  /@zerodevx/svelte-img@2.1.0(svelte@4.2.2):
-    resolution: {integrity: sha512-ktOcv5svIm8qQQ7sBnSST1zaA5mJpTp+MbzaMeDNBEw4hulwzSD0VRPtq/pvYsjacA1OAw+JIN/qmBl7doh7HA==}
-    peerDependencies:
-      svelte: ^3.55.1 || ^4.0.0
-    dependencies:
-      svelte: 4.2.2
-      vite-imagetools: 5.0.8
-    transitivePeerDependencies:
-      - rollup
     dev: true
 
   /a-sync-waterfall@1.0.1:
@@ -2960,10 +2932,6 @@ packages:
     hasBin: true
     dev: true
 
-  /estree-walker@2.0.2:
-    resolution: {integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==}
-    dev: true
-
   /estree-walker@3.0.3:
     resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
     dependencies:
@@ -3797,13 +3765,6 @@ packages:
     hasBin: true
     dependencies:
       queue: 6.0.2
-    dev: true
-
-  /imagetools-core@4.1.0:
-    resolution: {integrity: sha512-GDMgj3zhQ3g6Ga3yWBSmdJC7mM8UePgHiZsVQZ8sUWgAk2UzRyGlFV5qdv0topv63vE86KaK6MmAbjVUVibOzA==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      sharp: 0.32.6
     dev: true
 
   /immutable@4.3.4:
@@ -7067,16 +7028,6 @@ packages:
   /v8flags@4.0.1:
     resolution: {integrity: sha512-fcRLaS4H/hrZk9hYwbdRM35D0U8IYMfEClhXxCivOojl+yTRAZH3Zy2sSy6qVCiGbV9YAtPssP6jaChqC9vPCg==}
     engines: {node: '>= 10.13.0'}
-    dev: true
-
-  /vite-imagetools@5.0.8:
-    resolution: {integrity: sha512-oFNfc58iLz1lHFsIKQy+wp0RNcZjiaDeHYTexYowpf4RYx9tZ97eWEcw8lQ1jDT8AnOso6XZi5iGjLNAeTR9Tw==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      '@rollup/pluginutils': 5.1.0
-      imagetools-core: 4.1.0
-    transitivePeerDependencies:
-      - rollup
     dev: true
 
   /vite@4.5.0(@types/node@20.8.10)(sass@1.69.5):
