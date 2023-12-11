@@ -126,6 +126,27 @@
     <div class="m-10 inline-block">
       <div class="card w-96 bg-base-100 shadow-xl">
         <div class="card-body">
+          <h2 class="card-title">Giving Back to the Open Source Community</h2>
+          <p>
+            PocketHost is committed to giving back to the open source community
+            that helps create PocketHost and PocketBase.
+          </p>
+          <p>
+            10% of net proceeds (after expenses) are donated back to the
+            community. Specifically, PocketHost makes donations to the
+            PocketBase project and major contributors to the PocketHost project.
+          </p>
+          <p>
+            In addition, 1% of membership fees is collected by Stripe to reduce
+            carbon footprints around the world.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="m-10 inline-block">
+      <div class="card w-96 bg-base-100 shadow-xl">
+        <div class="card-body">
           <h2 class="card-title">Fair Use Policy</h2>
           <p>
             When we say 'unlimited', we mean it in the Fair Use sense of the
