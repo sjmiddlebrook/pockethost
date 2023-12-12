@@ -57,7 +57,7 @@
     </a>
   </div>
 
-  {#if !$instance.maintenance}
+  {#if $instance.maintenance}
     <AlertBar
       message="This instance is in Maintenance Mode and will not respond to requests"
       type="warning"

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { assertExists } from '$shared'
   import { instance } from '../store'
-  import LoggingInner from './LoggingInner.svelte'
+  import SecretsInner from './SecretsInner.svelte'
 
   $: ({ status, version, id } = $instance)
 
@@ -10,7 +10,7 @@
 </script>
 
 <svelte:head>
-  <title>{subdomain} logging - PocketHost</title>
+  <title>{subdomain} secrets - PocketHost</title>
 </svelte:head>
 
-<LoggingInner />
+<SecretsInner />
