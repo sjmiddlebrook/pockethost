@@ -1,8 +1,6 @@
 <script lang="ts">
   import AuthStateGuard from '$components/helpers/AuthStateGuard.svelte'
   import { client } from '$src/pocketbase-client'
-  import { globalInstancesStore } from '$util/stores'
-  import { values } from '@s-libs/micro-dash'
   import { onMount } from 'svelte'
   import { writable } from 'svelte/store'
 
@@ -24,8 +22,6 @@
         {},
     )
   })
-
-  $: isFirstApplication = values($globalInstancesStore).length === 0
 </script>
 
 <svelte:head>
@@ -34,8 +30,8 @@
 
 <AuthStateGuard>
   <div>
-    {#each Object.values(stats) as [name, value]}
-      <div>{name}: {value}</div>
+    {#each Object.entries($stats) as [key, idx]}
+      <div>{key}: {idx}</div>
     {/each}
   </div>
   <div>

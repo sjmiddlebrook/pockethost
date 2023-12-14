@@ -8,7 +8,7 @@ const config = {
   preprocess: preprocess(),
   kit: {
     adapter: adapter({
-      pages: '../../dist/dashboard',
+      pages: '../../dist/superadmin',
       fallback: 'index.html',
     }),
     alias: {
