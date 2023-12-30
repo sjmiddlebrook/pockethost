@@ -325,7 +325,7 @@ export const instanceService = mkSingleton(
         const pid = _pid()
         exitCode.then((code) => {
           info(`Processes exited with ${code}.`)
-          if (code !== 0) {
+          if (code !== 0 && !UPGRADE_MODE()) {
             shutdownManager.add(async () => {
               userInstanceLogger.error(
                 `Putting instance in maintenance mode because it shut down with return code ${code}. `,
