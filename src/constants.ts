@@ -95,6 +95,8 @@ export const SETTINGS = {
   ),
 
   DISCORD_POCKETSTREAM_URL: mkString(''),
+
+  BETA_INSTANCE_SLUGS: mkCsvString([]),
 }
 ;(() => {
   let passed = true
@@ -216,6 +218,8 @@ export const INSTANCE_APP_MIGRATIONS_DIR = () =>
 
 export const DISCORD_POCKETSTREAM_URL = () =>
   settings().DISCORD_POCKETSTREAM_URL
+
+export const BETA_INSTANCE_SLUGS = () => settings().BETA_INSTANCE_SLUGS
 
 /**
  * Helpers
