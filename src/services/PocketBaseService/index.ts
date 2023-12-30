@@ -138,16 +138,9 @@ export const createPocketbaseService = async (
       Binds.push(...extraBinds)
     }
 
-    const Cmd = (() => {
-      return [`./pocketbase`, `serve`, `--http`, `0.0.0.0:8090`]
-    })()
-    if (dev && gte(realVersion.version, `0.20.1`)) {
-      Cmd.push(`--dev`)
-    }
-
     const createOptions: ContainerCreateOptions = {
       Image: INSTANCE_IMAGE_NAME,
-      Cmd,
+      Cmd: ['node', `/bootstrap/index.mjs`],
       Env: map(
         {
           ...env,
@@ -178,10 +171,6 @@ export const createPocketbaseService = async (
       // User: 'pockethost',
     }
     logger.info(`Spawning ${instanceId}`)
-
-    if (isBeta) {
-      createOptions.Cmd = ['node', `/bootstrap/index.mjs`]
-    }
 
     dbg({ createOptions })
 
