@@ -1,10 +1,12 @@
 import {
   APEX_DOMAIN,
+  BETA_INSTANCE_SLUGS,
   mkContainerHomePath,
   mkInstanceDataPath,
 } from '$constants'
 import { InstanceLogger, PortService } from '$services'
 import {
+  LogLevelName,
   LoggerService,
   SingletonBaseConfig,
   createCleanupManager,
@@ -62,7 +64,7 @@ export const createPocketbaseService = async (
   const _spawn = async (cfg: SpawnConfig) => {
     const cm = createCleanupManager()
     const logger = LoggerService().create('spawn')
-    const { dbg, warn, error } = logger
+    const { dbg, warn, error, info } = logger
     const defaultPort = await (async () => {
       if (cfg.port) return cfg.port
       const [defaultPort, freeDefaultPort] = await PortService().alloc()
@@ -90,6 +92,12 @@ export const createPocketbaseService = async (
       stdout,
       dev,
     } = _cfg
+    const isBeta = BETA_INSTANCE_SLUGS().includes(subdomain)
+
+    if (isBeta) {
+      info(`${instanceId} is a beta instance`)
+      logger.setLevel(LogLevelName.Debug)
+    }
 
     logger.breadcrumb(subdomain).breadcrumb(instanceId)
     const iLogger = InstanceLogger(instanceId, 'exec')
@@ -131,12 +139,14 @@ export const createPocketbaseService = async (
     }
 
     const Cmd = (() => {
-      return ['node', `index.mjs`]
+      return [`./pocketbase`, `serve`, `--http`, `0.0.0.0:8090`]
     })()
+    if (dev && gte(realVersion.version, `0.20.1`)) {
+      Cmd.push(`--dev`)
+    }
 
     const createOptions: ContainerCreateOptions = {
       Image: INSTANCE_IMAGE_NAME,
-      WorkingDir: `/bootstrap`,
       Cmd,
       Env: map(
         {
@@ -168,6 +178,10 @@ export const createPocketbaseService = async (
       // User: 'pockethost',
     }
     logger.info(`Spawning ${instanceId}`)
+
+    if (isBeta) {
+      createOptions.Cmd = ['node', `/bootstrap/index.mjs`]
+    }
 
     dbg({ createOptions })
 
