@@ -1,6 +1,8 @@
 <script lang="ts">
-  import { slide } from 'svelte/transition'
-  import { handleLogin } from '$util/database'
+  import { client } from '$src/pocketbase-client'
+  import AlertBar from '$components/AlertBar.svelte'
+
+  const { authViaEmail } = client()
 
   export let isSignUpView: boolean = true
 
@@ -16,19 +18,24 @@
   let isButtonLoading: boolean = false
 
   // Toggle between registration and login forms
-  const handleLoginClick = () => {
+  const handleRegisterClick = () => {
     isSignUpView = !isSignUpView
   }
 
   // Handle the form submission
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault()
+
     isFormButtonDisabled = true
     isButtonLoading = true
+    formError = ''
 
-    await handleLogin(email, password, (error) => {
-      formError = error
-    })
+    try {
+      await authViaEmail(email, password)
+    } catch (error) {
+      const e = error as Error
+      formError = `Something went wrong with logging you in. ${e.message}`
+    }
 
     isFormButtonDisabled = false
     isButtonLoading = false
@@ -69,12 +76,7 @@
     />
   </div>
 
-  {#if formError}
-    <div transition:slide class="alert alert-error mb-5">
-      <i class="fa-solid fa-circle-exclamation"></i>
-      <span>{formError}</span>
-    </div>
-  {/if}
+  <AlertBar message={formError} type="error" />
 
   <div class="card-actions justify-end">
     <button
@@ -96,7 +98,7 @@
     Need to Register? <button
       type="button"
       class="link font-bold"
-      on:click={handleLoginClick}>Create A New Account</button
+      on:click={handleRegisterClick}>Create A New Account</button
     >
   </div>
 

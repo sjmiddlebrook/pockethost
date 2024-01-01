@@ -1,7 +1,18 @@
-FROM node:20.9.0-alpine3.18
-RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
+FROM node:20-alpine3.18
 
-EXPOSE 3000
+RUN apk update
+RUN apk add --no-cache ca-certificates bash
 
-WORKDIR /host_app
-CMD ["node", "index.mjs"]
+RUN adduser -D pockethost
+
+RUN echo "pockethost:password" | chpasswd
+
+EXPOSE 8090
+
+WORKDIR /bootstrap
+
+COPY bootstrap/* .
+
+RUN npm i
+
+WORKDIR /home/pockethost

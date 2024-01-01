@@ -1,7 +1,9 @@
 <script lang="ts">
   import { page } from '$app/stores'
+  import { client } from '$src/pocketbase-client'
   import { slide } from 'svelte/transition'
-  import { handleAccountConfirmation } from '$util/database'
+
+  const { confirmVerification } = client()
 
   let token: string | null = ''
   let formError: string = ''
@@ -19,12 +21,17 @@
   }
 
   const handleLoad = async () => {
-    if (!token) {
-      throw new Error(`Expected valid token here`)
+    try {
+      if (!token) throw new Error(`token expected here`)
+
+      await confirmVerification(token)
+
+      // Refresh the app to get the latest info from the backend
+      window.location.href = '/'
+    } catch (error) {
+      const e = error as Error
+      formError = `Something went wrong with confirming your account. ${e.message}`
     }
-    await handleAccountConfirmation(token, (error) => {
-      formError = error
-    })
   }
 </script>
 

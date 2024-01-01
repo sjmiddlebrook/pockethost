@@ -25,45 +25,52 @@ const loadedEnvs = dotenv.config({ path: `.env` })
 export const _PH_HOME = join(process.env.HOME || resolve(`~`), `.pockethost`)
 export const _PH_PROJECT_ROOT = dirname(findUpSync('package.json')!)
 export const _PH_BUILD_ROOT = join(_PH_PROJECT_ROOT, 'dist')
+export const _IS_DEV = process.env.NODE_ENV === 'development'
 
 console.log({ _PH_HOME, _PH_PROJECT_ROOT, _PH_BUILD_ROOT })
 
 export const SETTINGS = {
+  UPGRADE_MODE: mkBoolean(false),
+
   PH_HOME: mkPath(_PH_HOME),
   PH_PROJECT_ROOT: mkPath(_PH_PROJECT_ROOT),
-  PH_BUILD_ROOT: mkPath(_PH_BUILD_ROOT),
+  PH_BUILD_ROOT: mkPath(_PH_BUILD_ROOT, { required: false }),
 
-  DEBUG: mkBoolean(false),
+  DEBUG: mkBoolean(_IS_DEV),
 
   HTTP_PROTOCOL: mkString('https:'),
   APP_URL: mkString(`https://app.pockethost.io`),
   BLOG_URL: mkString(`https://pockethost.io`),
   APEX_DOMAIN: mkString(`pockethost.io`),
 
-  IPCIDR_LIST: mkCsvString([]),
+  IPCIDR_LIST: mkCsvString([`127.0.0.1/32`]),
   DAEMON_PORT: mkNumber(3000),
-  DAEMON_PB_PORT_BASE: mkNumber(8090),
   DAEMON_PB_IDLE_TTL: mkNumber(1000 * 60 * 5), // 5 minutes
 
   MOTHERSHIP_URL: mkString(`https://pockethost-central.pockethost.io`),
   MOTHERSHIP_NAME: mkString(`pockethost-central`),
+  MOTHERSHIP_INTERNAL_HOST: mkString(`localhost`),
   MOTHERSHIP_ADMIN_USERNAME: mkString(),
   MOTHERSHIP_ADMIN_PASSWORD: mkString(),
   MOTHERSHIP_MIGRATIONS_DIR: mkPath(
-    join(_PH_BUILD_ROOT, 'mothership-app', 'migrations'),
+    join(_PH_PROJECT_ROOT, 'src', 'mothership-app', 'migrations'),
   ),
   MOTHERSHIP_HOOKS_DIR: mkPath(
-    join(_PH_BUILD_ROOT, 'mothership-app', `pb_hooks`),
+    join(_PH_PROJECT_ROOT, 'src', 'mothership-app', `pb_hooks`, `src`),
   ),
-  MOTHERSHIP_APP_DIR: mkPath(join(_PH_BUILD_ROOT, 'mothership-app', `ph_app`), {
-    required: false,
-  }),
+  MOTHERSHIP_APP_DIR: mkPath(
+    join(_PH_PROJECT_ROOT, 'src', 'mothership-app', `ph_app`),
+    {
+      required: false,
+    },
+  ),
   MOTHERSHIP_SEMVER: mkString(''),
   MOTHERSHIP_PORT: mkNumber(8091),
 
   INITIAL_PORT_POOL_SIZE: mkNumber(20),
   DATA_ROOT: mkPath(join(_PH_HOME, 'data')),
   NODE_ENV: mkString(`production`),
+  IS_DEV: mkBoolean(_IS_DEV),
   TRACE: mkBoolean(false),
   PH_BIN_CACHE: mkPath(join(_PH_HOME, '.pbincache')),
 
@@ -86,6 +93,8 @@ export const SETTINGS = {
     join(_PH_BUILD_ROOT, `instance-app`, `migrations`),
     { create: true },
   ),
+
+  DISCORD_POCKETSTREAM_URL: mkString(''),
 }
 ;(() => {
   let passed = true
@@ -96,7 +105,7 @@ export const SETTINGS = {
     }
   })
   if (!passed) {
-    throw new Error(`Exiting due to .env errors`)
+    // throw new Error(`Exiting due to .env errors`)
   }
 })()
 
@@ -111,9 +120,8 @@ export const DefaultSettingsService = mkSingleton(
 
     ioc.register('settings', _settings)
 
-    if (_settings.DEBUG) {
       logConstants()
-    }
+
     return _settings
   },
 )
@@ -151,6 +159,8 @@ export const instanceLogger = () => ioc.service('instanceLogger')
 /**
  * Accessors
  */
+export const UPGRADE_MODE = () => settings().UPGRADE_MODE
+
 export const PH_HOME = () => settings().PH_HOME
 export const PH_PROJECT_ROOT = () => settings().PH_PROJECT_ROOT
 export const PH_BUILD_ROOT = () => settings().PH_BUILD_ROOT
@@ -164,10 +174,11 @@ export const APEX_DOMAIN = () => settings().APEX_DOMAIN
 
 export const IPCIDR_LIST = () => settings().IPCIDR_LIST
 export const DAEMON_PORT = () => settings().DAEMON_PORT
-export const DAEMON_PB_PORT_BASE = () => settings().DAEMON_PB_PORT_BASE
 export const DAEMON_PB_IDLE_TTL = () => settings().DAEMON_PB_IDLE_TTL
 
 export const MOTHERSHIP_URL = () => settings().MOTHERSHIP_URL
+export const MOTHERSHIP_INTERNAL_HOST = () =>
+  settings().MOTHERSHIP_INTERNAL_HOST
 export const MOTHERSHIP_NAME = () => settings().MOTHERSHIP_NAME
 export const MOTHERSHIP_ADMIN_USERNAME = () =>
   settings().MOTHERSHIP_ADMIN_USERNAME
@@ -183,6 +194,7 @@ export const MOTHERSHIP_PORT = () => settings().MOTHERSHIP_PORT
 export const INITIAL_PORT_POOL_SIZE = () => settings().INITIAL_PORT_POOL_SIZE
 export const DATA_ROOT = () => settings().DATA_ROOT
 export const NODE_ENV = () => settings().NODE_ENV
+export const IS_DEV = () => settings().IS_DEV
 export const TRACE = () => settings().TRACE
 export const PH_BIN_CACHE = () => settings().PH_BIN_CACHE
 
@@ -202,13 +214,22 @@ export const INSTANCE_APP_HOOK_DIR = () => settings().INSTANCE_APP_HOOKS_DIR
 export const INSTANCE_APP_MIGRATIONS_DIR = () =>
   settings().INSTANCE_APP_MIGRATIONS_DIR
 
+export const DISCORD_POCKETSTREAM_URL = () =>
+  settings().DISCORD_POCKETSTREAM_URL
+
 /**
  * Helpers
  */
-export const MOTHERSHIP_DATA_ROOT = () =>
-  join(settings().DATA_ROOT, settings().MOTHERSHIP_NAME)
-export const mkAppUrl = (path = '') => `${settings().APP_URL}${path}`
-export const mkBlogUrl = (path = '') => `${settings().BLOG_URL}${path}`
+export const MOTHERSHIP_DATA_ROOT = () => INSTANCE_DATA_ROOT(MOTHERSHIP_NAME())
+export const MOTHERSHIP_INTERNAL_URL = (path = '') =>
+  `http://${MOTHERSHIP_INTERNAL_HOST()}:${MOTHERSHIP_PORT()}${path}`
+export const INSTANCE_DATA_ROOT = (id: InstanceId) => join(DATA_ROOT(), id)
+export const INSTANCE_DATA_DB = (id: InstanceId) =>
+  join(DATA_ROOT(), id, `pb_data`, `data.db`)
+export const mkContainerHomePath = (...path: string[]) =>
+  join(`/home/pockethost`, ...path.filter((v) => !!v))
+export const mkAppUrl = (path = '') => `${APP_URL()}${path}`
+export const mkBlogUrl = (path = '') => `${BLOG_URL()}${path}`
 export const mkDocUrl = (path = '') => mkBlogUrl(join('/docs', path))
 export const mkEdgeSubdomain = (subdomain: string) =>
   `${settings().HTTP_PROTOCOL}//${subdomain}.${settings().EDGE_APEX_DOMAIN}`

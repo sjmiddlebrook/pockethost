@@ -1,6 +1,8 @@
 <script lang="ts">
   import { slide } from 'svelte/transition'
-  import { handleLogin } from '$util/database'
+  import { client } from '$src/pocketbase-client'
+
+  const { authViaEmail } = client()
 
   let email: string = ''
   let password: string = ''
@@ -14,9 +16,12 @@
 
     isFormButtonDisabled = true
 
-    await handleLogin(email, password, (error) => {
-      formError = error
-    })
+    try {
+      await authViaEmail(email, password)
+    } catch (error) {
+      const e = error as Error
+      formError = `Something has gone wrong with logging in. ${e.message}`
+    }
 
     isFormButtonDisabled = false
   }

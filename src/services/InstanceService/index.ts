@@ -1,8 +1,14 @@
 import {
   DAEMON_PB_IDLE_TTL,
+  EDGE_APEX_DOMAIN,
+  INSTANCE_APP_HOOK_DIR,
+  INSTANCE_APP_MIGRATIONS_DIR,
+  INSTANCE_DATA_DB,
   mkAppUrl,
+  mkContainerHomePath,
   mkDocUrl,
-  MOTHERSHIP_NAME,
+  mkEdgeUrl,
+  UPGRADE_MODE,
 } from '$constants'
 import {
   InstanceLogger,
@@ -10,6 +16,7 @@ import {
   PocketbaseService,
   PortService,
   proxyService,
+  SqliteService,
 } from '$services'
 import {
   assertTruthy,
@@ -24,8 +31,10 @@ import {
   SingletonBaseConfig,
 } from '$shared'
 import { asyncExitHook, mkInternalUrl, now } from '$util'
-import { map, values } from '@s-libs/micro-dash'
+import { flatten, map, values } from '@s-libs/micro-dash'
 import Bottleneck from 'bottleneck'
+import { globSync } from 'glob'
+import { basename, join } from 'path'
 import { ClientResponseError } from 'pocketbase'
 import { AsyncReturnType } from 'type-fest'
 
@@ -239,38 +248,89 @@ export const instanceService = mkSingleton(
         })
         healthyGuard()
 
+        /**
+         * Sync admin account
+         */
+        if (instance.syncAdmin) {
+          const id = instance.uid
+          dbg(`Fetching token info for uid ${id}`)
+          const { email, tokenKey, passwordHash } =
+            await client.getUserTokenInfo({ id })
+          dbg(`Token info is`, { email, tokenKey, passwordHash })
+          const sqliteService = await SqliteService()
+          const db = await sqliteService.getDatabase(
+            INSTANCE_DATA_DB(instance.id),
+          )
+          userInstanceLogger.info(`Syncing admin login`)
+          await db(`_admins`)
+            .insert({ id, email, tokenKey, passwordHash })
+            .onConflict('id')
+            .merge({ email, tokenKey, passwordHash })
+            .catch((e) => {
+              userInstanceLogger.error(`Failed to sync admin account: ${e}`)
+            })
+        }
+
         /*
         Spawn the child process
         */
-
         const childProcess = await (async () => {
           try {
             const cp = await pbService.spawn({
-              command: 'serve',
-              name: instance.subdomain,
-              slug: instance.id,
+              subdomain: instance.subdomain,
+              instanceId: instance.id,
               port: newPort,
-              env: instance.secrets || {},
+              dev: instance.dev,
+              extraBinds: flatten([
+                globSync(join(INSTANCE_APP_MIGRATIONS_DIR(), '*.js')).map(
+                  (file) =>
+                    `${file}:${mkContainerHomePath(
+                      `pb_migrations/${basename(file)}`,
+                    )}:ro`,
+                ),
+                globSync(join(INSTANCE_APP_HOOK_DIR(), '*.js')).map(
+                  (file) =>
+                    `${file}:${mkContainerHomePath(
+                      `pb_hooks/${basename(file)}`,
+                    )}:ro`,
+                ),
+              ]),
+              env: {
+                ...instance.secrets,
+                PH_APP_NAME: instance.subdomain,
+                PH_INSTANCE_URL: mkEdgeUrl(instance.subdomain),
+              },
               version,
             })
+
             return cp
           } catch (e) {
             warn(`Error spawning: ${e}`)
-            userInstanceLogger.error(
-              `Could not launch PocketBase ${instance.version}. It may be time to upgrade.`,
-            )
-            throw new Error(
-              `Could not launch PocketBase ${instance.version}. It may be time to upgrade.`,
-            )
+            if (UPGRADE_MODE()) {
+              throw new Error(
+                `PocketHost is rebooting. Try again in a few seconds.`,
+              )
+            } else {
+              await updateInstance(instance.id, {
+                maintenance: true,
+              })
+              userInstanceLogger.error(
+                `Could not launch container. Instance has been placed in maintenace mode. Please review your instance logs at https://app.pockethost.io/app/instances/${instance.id} or contact support at https://pockethost.io/support`,
+              )
+              throw new Error(`Maintenance mode`)
+            }
           }
         })()
         const { pid: _pid, exitCode } = childProcess
         const pid = _pid()
         exitCode.then((code) => {
-          dbg(`PocketBase processes exited with ${code}.`)
-          if (code !== 0) {
+          info(`Processes exited with ${code}.`)
+          if (code !== 0 && !UPGRADE_MODE()) {
             shutdownManager.add(async () => {
               userInstanceLogger.error(
+                `Putting instance in maintenance mode because it shut down with return code ${code}. `,
+              )
+              error(
                 `Putting instance in maintenance mode because it shut down with return code ${code}. `,
               )
               await updateInstance(instance.id, {
@@ -283,7 +343,7 @@ export const instanceService = mkSingleton(
           })
         })
         assertTruthy(pid, `Expected PID here but got ${pid}`)
-        dbg(`PocketBase instance PID: ${pid}`)
+        dbg(`Instance PID: ${pid}`)
 
         systemInstanceLogger.breadcrumb(`pid:${pid}`)
         shutdownManager.add(async () => {
@@ -313,17 +373,17 @@ export const instanceService = mkSingleton(
         }
         {
           tm.repeat(async () => {
-            raw(`idle check: ${openRequestCount} open requests`)
+            dbg(`idle check: ${openRequestCount} open requests`)
             if (
               openRequestCount === 0 &&
               lastRequest + DAEMON_PB_IDLE_TTL() < now()
             ) {
-              dbg(`idle for ${DAEMON_PB_IDLE_TTL()}, shutting down`)
+              info(`idle for ${DAEMON_PB_IDLE_TTL()}, shutting down`)
               healthyGuard()
               await _safeShutdown().catch(error)
               return false
             } else {
-              raw(`${openRequestCount} requests remain open`)
+              dbg(`${openRequestCount} requests remain open`)
             }
             return true
           }, RECHECK_TTL)
@@ -334,17 +394,42 @@ export const instanceService = mkSingleton(
         healthyGuard()
         await updateInstanceStatus(instance.id, InstanceStatus.Running)
       })().catch((e) => {
-        warn(`Instance failed to start with ${e}`)
+        warn(
+          `Instance failed to start with ${e}`,
+          (e as ClientResponseError).originalError?.message,
+        )
         _safeShutdown(e).catch(error)
       })
 
       return api
     }
 
-    const getInstanceByIdOrSubdomain = async (idOrSubdomain: InstanceId) => {
+    const getInstance = async (host: string) => {
+      {
+        dbg(`Trying to get instance by host: ${host}`)
+        const instance = await client
+          .getInstanceByCname(host)
+          .catch((e: ClientResponseError) => {
+            if (e.status !== 404) {
+              throw new Error(
+                `Unexpected response ${JSON.stringify(e)} from mothership`,
+              )
+            }
+          })
+        if (instance) {
+          dbg(`${host} is a cname`)
+          if (!instance.cname_active) {
+            throw new Error(
+              `CNAME not active for this instance. See dashboard.`,
+            )
+          }
+          return instance
+        }
+      }
+      const idOrSubdomain = host.replace(`.${EDGE_APEX_DOMAIN()}`, '')
       {
         dbg(`Trying to get instance by ID: ${idOrSubdomain}`)
-        const [instance, owner] = await client
+        const instance = await client
           .getInstanceById(idOrSubdomain)
           .catch((e: ClientResponseError) => {
             if (e.status !== 404) {
@@ -352,83 +437,86 @@ export const instanceService = mkSingleton(
                 `Unexpected response ${JSON.stringify(e)} from mothership`,
               )
             }
-            return []
           })
-        if (instance && owner) {
+        if (instance) {
           dbg(`${idOrSubdomain} is an instance ID`)
-          return { instance, owner }
+          return instance
         }
       }
       {
         dbg(`Trying to get instance by subdomain: ${idOrSubdomain}`)
-        const [instance, owner] =
-          await client.getInstanceBySubdomain(idOrSubdomain)
-        if (instance && owner) {
+        const instance = await client
+          .getInstanceBySubdomain(idOrSubdomain)
+          .catch((e: ClientResponseError) => {
+            if (e.status !== 404) {
+              throw new Error(
+                `Unexpected response ${JSON.stringify(e)} from mothership`,
+              )
+            }
+          })
+        if (instance) {
           dbg(`${idOrSubdomain} is a subdomain`)
-          return { instance, owner }
+          return instance
         }
       }
-      dbg(`${idOrSubdomain} is neither an instance nor a subdomain`)
-      return {}
+      dbg(`${idOrSubdomain} is neither an cname nor a subdomain`)
     }
 
-    ;(await proxyService()).use(
-      (subdomain) => subdomain !== MOTHERSHIP_NAME(),
-      ['/api(/*)', '/_(/*)', '(/*)'],
-      async (req, res, meta, logger) => {
-        const { dbg } = logger
-        const { subdomain: instanceIdOrSubdomain, host, proxy } = meta
+    ;(await proxyService()).use(async (req, res, next) => {
+      const logger = LoggerService().create(`InstanceRequest`)
 
-        const { instance, owner } = await getInstanceByIdOrSubdomain(
-          instanceIdOrSubdomain,
-        )
-        if (!owner) {
-          throw new Error(`Instance owner is invalid`)
-        }
-        if (!instance) {
-          throw new Error(
-            `Subdomain ${instanceIdOrSubdomain} does not resolve to an instance`,
-          )
-        }
+      const { dbg } = logger
 
-        /*
+      const { host, proxy } = res.locals
+
+      const instance = await getInstance(host)
+      if (!instance) {
+        res.writeHead(404, {
+          'Content-Type': `text/plain`,
+        })
+        res.end(`${host} not found`)
+        return
+      }
+      const owner = instance.expand.uid
+      if (!owner) {
+        throw new Error(`Instance owner is invalid`)
+      }
+
+      /*
         Maintenance check
         */
-        dbg(`Checking for maintenance mode`)
-        if (instance.maintenance) {
-          throw new Error(
-            `This instance is in Maintenance Mode. See ${mkDocUrl(
-              `usage/maintenance`,
-            )} for more information.`,
-          )
-        }
+      dbg(`Checking for maintenance mode`)
+      if (instance.maintenance) {
+        throw new Error(
+          `This instance is in Maintenance Mode. See ${mkDocUrl(
+            `usage/maintenance`,
+          )} for more information.`,
+        )
+      }
 
-        /*
+      /*
         Owner check
         */
-        dbg(`Checking for verified account`)
-        if (!owner?.verified) {
-          throw new Error(`Log in at ${mkAppUrl()}} to verify your account.`)
-        }
+      dbg(`Checking for verified account`)
+      if (!owner.verified) {
+        throw new Error(`Log in at ${mkAppUrl()} to verify your account.`)
+      }
 
-        const api = await getInstanceApi(instance)
-        const endRequest = api.startRequest()
-        res.on('close', endRequest)
-        if (req.closed) {
-          throw new Error(`Request already closed.`)
-        }
+      const api = await getInstanceApi(instance)
+      const endRequest = api.startRequest()
+      res.on('close', endRequest)
+      if (req.closed) {
+        throw new Error(`Request already closed.`)
+      }
 
-        dbg(
-          `Forwarding proxy request for ${
-            req.url
-          } to instance ${api.internalUrl()}`,
-        )
+      dbg(
+        `Forwarding proxy request for ${
+          req.url
+        } to instance ${api.internalUrl()}`,
+      )
 
-        proxy.web(req, res, { target: api.internalUrl() })
-        return true
-      },
-      `InstanceService`,
-    )
+      proxy.web(req, res, { target: api.internalUrl() })
+    })
 
     asyncExitHook(async () => {
       dbg(`Shutting down instance manager`)

@@ -1,6 +1,8 @@
 import {
   CreateInstancePayloadSchema,
-  LoggerService,
+  DeleteInstancePayload,
+  DeleteInstancePayloadSchema,
+  DeleteInstanceResult,
   RestCommands,
   RestMethods,
   UpdateInstancePayload,
@@ -8,7 +10,6 @@ import {
   UpdateInstanceResult,
   assertExists,
   createRestHelper,
-  createWatchHelper,
   type CreateInstancePayload,
   type CreateInstanceResult,
   type InstanceFields,
@@ -23,11 +24,7 @@ import PocketBase, {
   BaseAuthStore,
   ClientResponseError,
   type AuthModel,
-  type RecordSubscription,
-  type UnsubscribeFunc,
 } from 'pocketbase'
-
-export type AuthChangeHandler = (user: BaseAuthStore) => void
 
 export type AuthToken = string
 export type AuthStoreProps = {
@@ -43,8 +40,6 @@ export type PocketbaseClient = ReturnType<typeof createPocketbaseClient>
 
 export const createPocketbaseClient = (config: PocketbaseClientConfig) => {
   const { url } = config
-  const _logger = LoggerService()
-  const { dbg, error } = _logger
 
   const client = new PocketBase(url)
 
@@ -56,63 +51,88 @@ export const createPocketbaseClient = (config: PocketbaseClientConfig) => {
 
   const logOut = () => authStore.clear()
 
-  const createUser = (email: string, password: string) =>
-    client
-      .collection('users')
-      .create({
-        email,
-        password,
-        passwordConfirm: password,
-      })
-      .then(() => {
-        // dbg(`Sending verification email to ${email}`)
-        return client.collection('users').requestVerification(email)
-      })
+  /**
+   * This will register a new user into Pocketbase, and email them a verification link
+   * @param email {string} The email of the user
+   * @param password {string} The password of the user
+   */
+  const createUser = async (email: string, password: string) => {
+    // Build the new user object and any additional properties needed
+    const data = {
+      email,
+      password,
+      passwordConfirm: password,
+    }
 
-  const confirmVerification = (token: string) =>
-    client
-      .collection('users')
-      .confirmVerification(token)
-      .then((response) => {
-        return response
-      })
+    // Create the user
+    const record = await client.collection('users').create(data)
 
-  const requestPasswordReset = (email: string) =>
-    client
-      .collection('users')
-      .requestPasswordReset(email)
-      .then(() => {
-        return true
-      })
+    // Send the verification email
+    await resendVerificationEmail()
 
-  const requestPasswordResetConfirm = (token: string, password: string) =>
-    client
+    return record
+  }
+
+  /**
+   * This will let a user confirm their new account via a token in their email
+   * @param token {string} The token from the verification email
+   */
+  const confirmVerification = async (token: string) => {
+    return await client.collection('users').confirmVerification(token)
+  }
+
+  /**
+   * This will reset an unauthenticated user's password by sending a verification link to their email, and includes an optional error handler
+   * @param email {string} The email of the user
+   */
+  const requestPasswordReset = async (email: string) => {
+    return await client.collection('users').requestPasswordReset(email)
+  }
+
+  /**
+   * This will let an unauthenticated user save a new password after verifying their email
+   * @param token {string} The token from the verification email
+   * @param password {string} The new password of the user
+   */
+  const requestPasswordResetConfirm = async (
+    token: string,
+    password: string,
+  ) => {
+    return await client
       .collection('users')
       .confirmPasswordReset(token, password, password)
-      .then((response) => {
-        return response
-      })
+  }
 
-  const authViaEmail = (email: string, password: string) =>
-    client.collection('users').authWithPassword(email, password)
+  /**
+   * This will log a user into Pocketbase, and includes an optional error handler
+   * @param {string} email The email of the user
+   * @param {string} password The password of the user
+   */
+  const authViaEmail = async (email: string, password: string) => {
+    return await client.collection('users').authWithPassword(email, password)
+  }
 
   const refreshAuthToken = () => client.collection('users').authRefresh()
 
-  const watchHelper = createWatchHelper({ client })
-  const { watchById, watchAllById } = watchHelper
-  const restMixin = createRestHelper({ client, watchHelper })
+  const restMixin = createRestHelper({ client })
   const { mkRest } = restMixin
 
   const createInstance = mkRest<CreateInstancePayload, CreateInstanceResult>(
     RestCommands.Instance,
-    RestMethods.Create,
+    RestMethods.Post,
     CreateInstancePayloadSchema,
   )
 
   const updateInstance = mkRest<UpdateInstancePayload, UpdateInstanceResult>(
     RestCommands.Instance,
-    RestMethods.Update,
+    RestMethods.Put,
     UpdateInstancePayloadSchema,
+  )
+
+  const deleteInstance = mkRest<DeleteInstancePayload, DeleteInstanceResult>(
+    RestCommands.Instance,
+    RestMethods.Delete,
+    DeleteInstancePayloadSchema,
   )
 
   const getInstanceById = (
@@ -120,10 +140,12 @@ export const createPocketbaseClient = (config: PocketbaseClientConfig) => {
   ): Promise<InstanceFields | undefined> =>
     client.collection('instances').getOne<InstanceFields>(id)
 
-  const watchInstanceById = async (
-    id: InstanceId,
-    cb: (data: RecordSubscription<InstanceFields>) => void,
-  ): Promise<UnsubscribeFunc> => watchById('instances', id, cb)
+  const getInstanceBySubdomain = (
+    subdomain: InstanceFields['subdomain'],
+  ): Promise<InstanceFields | undefined> =>
+    client
+      .collection('instances')
+      .getFirstListItem<InstanceFields>(`subdomain='${subdomain}'`)
 
   const getAllInstancesById = async () =>
     (await client.collection('instances').getFullList()).reduce(
@@ -151,7 +173,7 @@ export const createPocketbaseClient = (config: PocketbaseClientConfig) => {
 
   const getAuthStoreProps = (): AuthStoreProps => {
     const { isAdmin, model, token, isValid } = client.authStore
-    // dbg(`current authStore`, { token, model, isValid })
+
     if (isAdmin) throw new Error(`Admin models not supported`)
     if (model && !model.email)
       throw new Error(`Expected model to be a user here`)
@@ -163,7 +185,7 @@ export const createPocketbaseClient = (config: PocketbaseClientConfig) => {
   }
 
   /**
-   * Use synthetic event for authStore changers so we can broadcast just
+   * Use synthetic event for authStore changers, so we can broadcast just
    * the props we want and not the actual authStore object.
    */
   const [onAuthChange, fireAuthChange] = createGenericSyncEvent<BaseAuthStore>()
@@ -184,8 +206,7 @@ export const createPocketbaseClient = (config: PocketbaseClientConfig) => {
      * out of date, or fields in the user record may have changed in the backend.
      */
     refreshAuthToken()
-      .catch((e) => {
-        dbg(`Clearing auth store: ${e}`)
+      .catch((error) => {
         client.authStore.clear()
       })
       .finally(() => {
@@ -201,7 +222,6 @@ export const createPocketbaseClient = (config: PocketbaseClientConfig) => {
      * watch on the user record and update auth accordingly.
      */
     const unsub = onAuthChange((authStore) => {
-      // dbg(`onAuthChange`, { ...authStore })
       const { model, isAdmin } = authStore
       if (!model) return
       if (isAdmin) return
@@ -211,28 +231,25 @@ export const createPocketbaseClient = (config: PocketbaseClientConfig) => {
       }
       setTimeout(refreshAuthToken, 1000)
 
-      // FIXME - THIS DOES NOT WORK, WE HAVE TO POLL INSTEAD. FIX IN V0.8
-      // dbg(`watching _users`)
+      // TODO - THIS DOES NOT WORK, WE HAVE TO POLL INSTEAD. FIX IN V0.8
       // unsub = subscribe<User>(`users/${model.id}`, (user) => {
-      //   dbg(`realtime _users change`, { ...user })
       //   fireAuthChange({ ...authStore, model: user })
       // })
     })
   }
 
   const watchInstanceLog = (
-    instanceId: InstanceId,
+    instance: InstanceFields,
     update: (log: InstanceLogFields) => void,
     nInitial = 100,
   ): (() => void) => {
-    const { dbg, trace } = _logger.create('watchInstanceLog')
     const auth = client.authStore.exportToCookie()
 
     const controller = new AbortController()
     const signal = controller.signal
     const continuallyFetchFromEventSource = () => {
-      const url = INSTANCE_URL(instanceId, `logs`)
-      dbg(`Subscribing to ${url}`)
+      const url = INSTANCE_URL(instance, `logs`)
+
       fetchEventSource(url, {
         method: 'POST',
         headers: {
@@ -240,26 +257,20 @@ export const createPocketbaseClient = (config: PocketbaseClientConfig) => {
           Authorization: client.authStore.token,
         },
         body: JSON.stringify({
-          instanceId,
+          instanceId: instance.id,
           n: nInitial,
           auth,
         }),
         onmessage: (event) => {
-          dbg(`Got stream event`, event)
           const {} = event
           const log = JSON.parse(event.data) as InstanceLogFields
-          dbg(`Log is`, log)
+
           update(log)
         },
-        onopen: async (response) => {
-          dbg(`Stream is open`, response)
-        },
-        onerror: (e) => {
-          dbg(`Stream error`, e)
-        },
+        onopen: async (response) => {},
+        onerror: (e) => {},
         onclose: () => {
           setTimeout(continuallyFetchFromEventSource, 100)
-          dbg(`Stream closed`)
         },
         signal,
       })
@@ -277,6 +288,7 @@ export const createPocketbaseClient = (config: PocketbaseClientConfig) => {
     getAuthStoreProps,
     parseError,
     getInstanceById,
+    getInstanceBySubdomain,
     createInstance,
     authViaEmail,
     createUser,
@@ -287,9 +299,9 @@ export const createPocketbaseClient = (config: PocketbaseClientConfig) => {
     onAuthChange,
     isLoggedIn,
     user,
-    watchInstanceById,
     getAllInstancesById,
     resendVerificationEmail,
     updateInstance,
+    deleteInstance,
   }
 }

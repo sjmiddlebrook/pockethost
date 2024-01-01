@@ -24,6 +24,13 @@ routerAdd(
     const instanceName = (() => {
       const name = c.queryParam('name').trim()
       if (name) {
+        if (name.match(/^[a-z][a-z0-9-]{2,39}$/) === null) {
+          throw error(
+            `instanceName`,
+            `invalid`,
+            `Instance name must begin with a letter, be between 3-40 characters, and can only contain a-z, 0-9, and hyphen (-).`,
+          )
+        }
         if (isAvailable(name)) {
           return name
         }
@@ -151,6 +158,7 @@ routerAdd(
           )
         user.set('username', username)
         user.set('email', email)
+        user.set('subscription', 'free')
         user.setPassword(password)
         txDao.saveRecord(user)
       } catch (e) {
@@ -161,8 +169,8 @@ routerAdd(
         const instance = new Record(instanceCollection)
         instance.set('subdomain', desiredInstanceName)
         instance.set('uid', user.get('id'))
-        instance.set('status', 'Idle')
-        instance.set('version', '~0.19.0')
+        instance.set('status', 'idle')
+        instance.set('version', '0.19.*')
         txDao.saveRecord(instance)
       } catch (e) {
         if (e.toString().match(/ UNIQUE /)) {

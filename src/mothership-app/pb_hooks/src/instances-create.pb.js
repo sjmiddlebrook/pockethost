@@ -40,7 +40,7 @@ routerAdd(
       )
     }
 
-    const { versions } = require(`${__hooks}/versions.pb.js`)
+    const { versions } = require(`${__hooks}/versions.js`)
 
     const collection = $app.dao().findCollectionByNameOrId('instances')
     const record = new Record(collection)
@@ -48,6 +48,7 @@ routerAdd(
     record.set('subdomain', subdomain)
     record.set('status', 'idle')
     record.set('version', versions[0])
+    record.set('syncAdmin', true)
 
     const form = new RecordUpsertForm($app, record)
     form.submit()
