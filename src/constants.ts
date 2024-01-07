@@ -22,19 +22,19 @@ import { LogEntry } from 'winston'
 
 const loadedEnvs = dotenv.config({ path: `.env` })
 
-export const _PH_HOME = join(process.env.HOME || resolve(`~`), `.pockethost`)
+export const _PH_HOME =
+  process.env.PH_HOME || join(process.env.HOME || resolve(`~`), `.pockethost`)
 export const _PH_PROJECT_ROOT = dirname(findUpSync('package.json')!)
-export const _PH_BUILD_ROOT = join(_PH_PROJECT_ROOT, 'dist')
 export const _IS_DEV = process.env.NODE_ENV === 'development'
 
-console.log({ _PH_HOME, _PH_PROJECT_ROOT, _PH_BUILD_ROOT })
+console.log({ _PH_HOME, _PH_PROJECT_ROOT })
 
 export const SETTINGS = {
   UPGRADE_MODE: mkBoolean(false),
 
   PH_HOME: mkPath(_PH_HOME),
+  PH_VERSIONS: mkPath(join(_PH_HOME, `versions.js`), { required: false }),
   PH_PROJECT_ROOT: mkPath(_PH_PROJECT_ROOT),
-  PH_BUILD_ROOT: mkPath(_PH_BUILD_ROOT, { required: false }),
 
   DEBUG: mkBoolean(_IS_DEV),
 
@@ -72,29 +72,30 @@ export const SETTINGS = {
   NODE_ENV: mkString(`production`),
   IS_DEV: mkBoolean(_IS_DEV),
   TRACE: mkBoolean(false),
-  PH_BIN_CACHE: mkPath(join(_PH_HOME, '.pbincache')),
+  PH_BIN_CACHE: mkPath(join(_PH_HOME, '.pbincache'), { create: true }),
 
   PH_FTP_PORT: mkNumber(21),
-  SSL_KEY: mkPath(join(_PH_HOME, `pockethost.key`)),
-  SSL_CERT: mkPath(join(_PH_HOME, `pockethost.crt`)),
+  SSL_KEY: mkPath(join(_PH_PROJECT_ROOT, `ssl`, `pockethost.test.key`)),
+  SSL_CERT: mkPath(join(_PH_PROJECT_ROOT, `ssl`, `pockethost.test.crt`)),
   PH_FTP_PASV_IP: mkString(`0.0.0.0`),
   PH_FTP_PASV_PORT_MIN: mkNumber(10000),
   PH_FTP_PASV_PORT_MAX: mkNumber(20000),
 
   EDGE_APEX_DOMAIN: mkString(`pockethost.lvh.me`),
   EDGE_MAX_ACTIVE_INSTANCES: mkNumber(20),
-  EDGE_SECRET_KEY: mkString(),
 
   INSTANCE_APP_HOOKS_DIR: mkPath(
-    join(_PH_BUILD_ROOT, `instance-app`, `pb_hooks`),
+    join(_PH_PROJECT_ROOT, `src`, `instance-app`, `pb_hooks`),
     { create: true },
   ),
   INSTANCE_APP_MIGRATIONS_DIR: mkPath(
-    join(_PH_BUILD_ROOT, `instance-app`, `migrations`),
+    join(_PH_PROJECT_ROOT, `src`, `instance-app`, `migrations`),
     { create: true },
   ),
 
   DISCORD_POCKETSTREAM_URL: mkString(''),
+
+  TEST_EMAIL: mkString(),
 }
 ;(() => {
   let passed = true
@@ -120,7 +121,7 @@ export const DefaultSettingsService = mkSingleton(
 
     ioc.register('settings', _settings)
 
-      logConstants()
+    logConstants()
 
     return _settings
   },
@@ -162,8 +163,8 @@ export const instanceLogger = () => ioc.service('instanceLogger')
 export const UPGRADE_MODE = () => settings().UPGRADE_MODE
 
 export const PH_HOME = () => settings().PH_HOME
+export const PH_VERSIONS = () => settings().PH_VERSIONS
 export const PH_PROJECT_ROOT = () => settings().PH_PROJECT_ROOT
-export const PH_BUILD_ROOT = () => settings().PH_BUILD_ROOT
 
 export const DEBUG = () => settings().DEBUG
 
@@ -208,7 +209,6 @@ export const PH_FTP_PASV_PORT_MAX = () => settings().PH_FTP_PASV_PORT_MAX
 export const EDGE_APEX_DOMAIN = () => settings().EDGE_APEX_DOMAIN
 export const EDGE_MAX_ACTIVE_INSTANCES = () =>
   settings().EDGE_MAX_ACTIVE_INSTANCES
-export const EDGE_SECRET_KEY = () => settings().EDGE_SECRET_KEY
 
 export const INSTANCE_APP_HOOK_DIR = () => settings().INSTANCE_APP_HOOKS_DIR
 export const INSTANCE_APP_MIGRATIONS_DIR = () =>
@@ -217,10 +217,15 @@ export const INSTANCE_APP_MIGRATIONS_DIR = () =>
 export const DISCORD_POCKETSTREAM_URL = () =>
   settings().DISCORD_POCKETSTREAM_URL
 
+export const TEST_EMAIL = () => settings().TEST_EMAIL
+
 /**
  * Helpers
  */
+
 export const MOTHERSHIP_DATA_ROOT = () => INSTANCE_DATA_ROOT(MOTHERSHIP_NAME())
+export const MOTHERSHIP_DATA_DB = () =>
+  join(MOTHERSHIP_DATA_ROOT(), `pb_data`, `data.db`)
 export const MOTHERSHIP_INTERNAL_URL = (path = '') =>
   `http://${MOTHERSHIP_INTERNAL_HOST()}:${MOTHERSHIP_PORT()}${path}`
 export const INSTANCE_DATA_ROOT = (id: InstanceId) => join(DATA_ROOT(), id)

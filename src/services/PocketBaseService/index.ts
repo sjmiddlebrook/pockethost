@@ -116,7 +116,7 @@ export const createPocketbaseService = async (
     const _stdErrData = (data: Buffer) => {
       const lines = data.toString().split(/\n/)
       lines.forEach((line) => {
-        warn(line)
+        error(line)
         iLogger.error(line)
       })
     }
@@ -130,14 +130,8 @@ export const createPocketbaseService = async (
       Binds.push(...extraBinds)
     }
 
-    const Cmd = (() => {
-      return ['node', `index.mjs`]
-    })()
-
     const createOptions: ContainerCreateOptions = {
       Image: INSTANCE_IMAGE_NAME,
-      WorkingDir: `/bootstrap`,
-      Cmd,
       Env: map(
         {
           ...env,
@@ -167,6 +161,16 @@ export const createPocketbaseService = async (
       },
       // User: 'pockethost',
     }
+
+    createOptions.Cmd = ['node', `index.mjs`]
+    createOptions.WorkingDir = `/bootstrap`
+
+    createOptions.Cmd = ['./pocketbase', `serve`, `--http`, `0.0.0.0:8090`]
+    if (dev) {
+      createOptions.Cmd.push(`--dev`)
+    }
+    createOptions.WorkingDir = `/home/pockethost`
+
     logger.info(`Spawning ${instanceId}`)
 
     dbg({ createOptions })

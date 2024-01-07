@@ -8,6 +8,7 @@ import {
 import { asyncExitHook } from '$util'
 import cors from 'cors'
 import express, { Request, Response } from 'express'
+import 'express-async-errors'
 import { default as Server, default as httpProxy } from 'http-proxy'
 import { AsyncReturnType } from 'type-fest'
 
@@ -70,11 +71,6 @@ export const proxyService = mkSingleton(async (config: ProxyServiceConfig) => {
     ].join(' ')
     info(`Incoming request ${sig}`)
     res.locals.sig = sig
-    next()
-  })
-
-  server.use((req, res, next) => {
-    res.locals.proxy = proxy
     next()
   })
 

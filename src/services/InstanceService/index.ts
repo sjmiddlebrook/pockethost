@@ -12,7 +12,7 @@ import {
 } from '$constants'
 import {
   InstanceLogger,
-  MothershipAdmimClientService,
+  MothershipAdminClientService,
   PocketbaseService,
   PortService,
   proxyService,
@@ -62,7 +62,7 @@ export const instanceService = mkSingleton(
     const { instanceApiTimeoutMs, instanceApiCheckIntervalMs } = config
     const instanceServiceLogger = LoggerService().create('InstanceService')
     const { dbg, raw, error, warn } = instanceServiceLogger
-    const { client } = await MothershipAdmimClientService()
+    const { client } = await MothershipAdminClientService()
 
     const pbService = await PocketbaseService()
 
@@ -187,7 +187,7 @@ export const instanceService = mkSingleton(
         },
       }
       const _safeShutdown = async (reason?: Error) => {
-        if (status === InstanceApiStatus.ShuttingDown) {
+        if (status === InstanceApiStatus.ShuttingDown && reason) {
           warn(`Already shutting down, ${reason} will not be reported.`)
           return
         }
@@ -262,13 +262,31 @@ export const instanceService = mkSingleton(
             INSTANCE_DATA_DB(instance.id),
           )
           userInstanceLogger.info(`Syncing admin login`)
-          await db(`_admins`)
-            .insert({ id, email, tokenKey, passwordHash })
-            .onConflict('id')
-            .merge({ email, tokenKey, passwordHash })
-            .catch((e) => {
+          try {
+            // First, try upserting
+            await db(`_admins`)
+              .insert({ id, email, tokenKey, passwordHash })
+              .onConflict('id')
+              .merge({ email, tokenKey, passwordHash })
+
+            userInstanceLogger.info(`${email} has been successfully sync'd`)
+          } catch (e) {
+            // Upsert could fail if the email exists under a different ID
+            // If that happens, it means they created an admin account with the same email
+            // manually. In that case, just update the pw hash
+            try {
+              userInstanceLogger.info(`Got an error on admin sync upsert. ${e}`)
+              userInstanceLogger.info(
+                `${email} may already exist under a different ID, trying to update instead`,
+              )
+              await db(`_admins`)
+                .update({ tokenKey, passwordHash })
+                .where({ email })
+              userInstanceLogger.info(`${email} has been successfully sync'd`)
+            } catch (e) {
               userInstanceLogger.error(`Failed to sync admin account: ${e}`)
-            })
+            }
+          }
         }
 
         /*
@@ -315,7 +333,7 @@ export const instanceService = mkSingleton(
                 maintenance: true,
               })
               userInstanceLogger.error(
-                `Could not launch container. Instance has been placed in maintenace mode. Please review your instance logs at https://app.pockethost.io/app/instances/${instance.id} or contact support at https://pockethost.io/support`,
+                `Could not launch container. Instance has been placed in maintenance mode. Please review your instance logs at https://app.pockethost.io/app/instances/${instance.id} or contact support at https://pockethost.io/support`,
               )
               throw new Error(`Maintenance mode`)
             }
