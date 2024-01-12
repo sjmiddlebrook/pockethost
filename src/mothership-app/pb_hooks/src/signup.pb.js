@@ -4,6 +4,10 @@ routerAdd(
   'GET',
   '/api/signup',
   (c) => {
+    /**
+     * @param {string} slug
+     * @returns
+     */
     const isAvailable = (slug) => {
       try {
         const record = $app
@@ -15,6 +19,13 @@ routerAdd(
       }
     }
 
+    /**
+     * @param {string} fieldName
+     * @param {string} slug
+     * @param {string} description
+     * @param {StringKvLookup} [extra]
+     * @returns
+     */
     const error = (fieldName, slug, description, extra) =>
       new ApiError(500, description, {
         [fieldName]: new ValidationError(slug, description),
@@ -76,11 +87,11 @@ routerAdd(
   
   {
       "code": 500,
-      "message": "Instance name was taken, sorry aboout that. Try another.",
+      "message": "Instance name was taken, sorry about that. Try another.",
       "data": {
           "instanceName": {
               "code": "exists",
-              "message": "Instance name was taken, sorry aboout that. Try another."
+              "message": "Instance name was taken, sorry about that. Try another."
           }
       }
   }
@@ -91,6 +102,7 @@ routerAdd(
   'POST',
   '/api/signup',
   (c) => {
+    const dao = $app.dao()
     const parsed = (() => {
       const rawBody = readerToString(c.request().body)
       try {
@@ -107,6 +119,13 @@ routerAdd(
     const password = parsed.password?.trim()
     const desiredInstanceName = parsed.instanceName?.trim()
 
+    /**
+     * @param {string} fieldName
+     * @param {string} slug
+     * @param {string} description
+     * @param {StringKvLookup} [extra]
+     * @returns
+     */
     const error = (fieldName, slug, description, extra) =>
       new ApiError(500, description, {
         [fieldName]: new ValidationError(slug, description),
@@ -127,7 +146,7 @@ routerAdd(
 
     const userExists = (() => {
       try {
-        const record = $app.dao().findFirstRecordByData('users', 'email', email)
+        const record = dao.findFirstRecordByData('users', 'email', email)
         return true
       } catch {
         return false
@@ -142,8 +161,8 @@ routerAdd(
       )
     }
 
-    $app.dao().runInTransaction((txDao) => {
-      const usersCollection = $app.dao().findCollectionByNameOrId('users')
+    dao.runInTransaction((txDao) => {
+      const usersCollection = dao.findCollectionByNameOrId('users')
       const instanceCollection = $app
         .dao()
         .findCollectionByNameOrId('instances')
@@ -177,11 +196,11 @@ routerAdd(
         instance.set('version', versions[0])
         txDao.saveRecord(instance)
       } catch (e) {
-        if (e.toString().match(/ UNIQUE /)) {
+        if (`${e}`.match(/ UNIQUE /)) {
           throw error(
             `instanceName`,
             `exists`,
-            `Instance name was taken, sorry aboout that. Try another.`,
+            `Instance name was taken, sorry about that. Try another.`,
           )
         }
         throw error(`instanceName`, `fail`, `Could not create instance: ${e}`)

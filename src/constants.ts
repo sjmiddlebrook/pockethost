@@ -96,6 +96,8 @@ export const SETTINGS = {
   DISCORD_POCKETSTREAM_URL: mkString(''),
 
   TEST_EMAIL: mkString(),
+
+  LS_WEBHOOK_SECRET: mkString(''),
 }
 ;(() => {
   let passed = true
@@ -157,9 +159,7 @@ export const settings = () => ioc.service('settings')
 export const mothership = () => ioc.service('mothership')
 export const instanceLogger = () => ioc.service('instanceLogger')
 
-/**
- * Accessors
- */
+/** Accessors */
 export const UPGRADE_MODE = () => settings().UPGRADE_MODE
 
 export const PH_HOME = () => settings().PH_HOME
@@ -219,9 +219,9 @@ export const DISCORD_POCKETSTREAM_URL = () =>
 
 export const TEST_EMAIL = () => settings().TEST_EMAIL
 
-/**
- * Helpers
- */
+export const LS_WEBHOOK_SECRET = () => settings().LS_WEBHOOK_SECRET
+
+/** Helpers */
 
 export const MOTHERSHIP_DATA_ROOT = () => INSTANCE_DATA_ROOT(MOTHERSHIP_NAME())
 export const MOTHERSHIP_DATA_DB = () =>

@@ -1,53 +1,28 @@
 /// <reference path="../types/types.d.ts" />
 
 routerAdd('POST', '/api/sns', (c) => {
-  const log = (...s) =>
-    console.log(
-      `*** [sns]`,
-      ...s.map((p) => {
-        if (typeof p === 'object') return JSON.stringify(p, null, 2)
-        return p
-      }),
-    )
-  const error = (...s) => console.error(`***`, ...s)
-
-  const audit = (key, note) => {
-    log(note)
-    const collection = $app.dao().findCollectionByNameOrId('audit')
-
-    const record = new Record(collection, {
-      ...key,
-      note,
-    })
-
-    $app.dao().saveRecord(record)
-  }
+  const dao = $app.dao()
+  const { mkLog, audit } = /** @type {Lib} */ (require(`${__hooks}/lib.js`))
+  const log = mkLog(`sns`)
 
   const processBounce = (emailAddress) => {
     log(`Processing ${emailAddress}`)
+    const extra = /** @type {{ email: string; user: string }} */ ({
+      email: emailAddress,
+    })
     try {
-      const user = $app
-        .dao()
-        .findFirstRecordByData('users', 'email', emailAddress)
+      const user = dao.findFirstRecordByData('users', 'email', emailAddress)
       log(`user is`, user)
+      extra.user = user.getId()
       user.setVerified(false)
-      try {
-        $app.dao().saveRecord(user)
-      } catch (e) {
-        audit(
-          { user: user.getId(), event: `PBOUNCE_ERR` },
-          `User ${emailAddress} could not be disabled `,
-        )
-      }
-      audit(
-        { user: user.getId(), event: `PBOUNCE` },
-        `User ${emailAddress} has been disabled`,
-      )
+      dao.saveRecord(user)
+      audit('PBOUNCE', `User ${emailAddress} has been disabled`, {
+        dao,
+        extra,
+        log,
+      })
     } catch (e) {
-      audit(
-        { email: emailAddress, event: `PBOUNCE_ERR` },
-        `${emailAddress} is not in the system.`,
-      )
+      audit('PBOUNCE_ERR', `${e}`, { dao, log, extra })
       log(`After audit`)
     }
   }
@@ -86,10 +61,11 @@ routerAdd('POST', '/api/sns', (c) => {
               })
               break
             default:
-              audit(
-                { event: `SNS` },
-                `Unrecognized bounce type ${bounceType}: ${data}`,
-              )
+              audit('SNS_ERR', `Unrecognized bounce type ${bounceType}`, {
+                dao,
+                log,
+                extra: { raw_payload: raw },
+              })
           }
           break
         }
@@ -107,15 +83,27 @@ routerAdd('POST', '/api/sns', (c) => {
                   .findFirstRecordByData('users', 'email', emailAddress)
                 log(`user is`, user)
                 user.set(`unsubscribe`, true)
-                $app.dao().saveRecord(user)
+                dao.saveRecord(user)
                 audit(
-                  { user: user.getId(), event: `COMPLAINT` },
+                  'COMPLAINT',
                   `User ${emailAddress} has been unsubscribed`,
+                  {
+                    log,
+                    dao,
+                    extra: { email: emailAddress, user: user.getId() },
+                  },
                 )
               } catch (e) {
                 audit(
-                  { email: emailAddress, event: `COMPLAINT` },
+                  'COMPLAINT_ERR',
                   `${emailAddress} is not in the system.`,
+                  {
+                    log,
+                    dao,
+                    extra: {
+                      email: emailAddress,
+                    },
+                  },
                 )
               }
             })
@@ -123,13 +111,22 @@ routerAdd('POST', '/api/sns', (c) => {
           break
         default:
           audit(
-            { event: `SNS` },
-            `Unrecognized notification type ${notificationType}: ${data}`,
+            'SNS_ERR',
+            `Unrecognized notification type ${notificationType}`,
+            {
+              log,
+              dao,
+              extra: { raw_payload: raw },
+            },
           )
       }
       break
     default:
-      audit({ event: `SNS` }, `Message ${Type} not handled: ${data}`)
+      audit(`SNS_ERR`, `Message ${Type} not handled`, {
+        log,
+        dao,
+        extra: { raw_payload: raw },
+      })
   }
 
   return c.json(200, { status: 'ok' })

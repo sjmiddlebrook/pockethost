@@ -1,5 +1,3 @@
-/// <reference path="../types/types.d.ts" />
-
 /*
 {
   "id": "kz4ngg77eaw1ho0",
@@ -14,34 +12,39 @@ routerAdd(
   'DELETE',
   '/api/instance/:id',
   (c) => {
-    console.log(`***TOP OF DELETE`)
+    const dao = $app.dao()
+    const { audit, mkLog } = /** @type {Lib} */ (require(`${__hooks}/lib.js`))
+
+    const log = mkLog(`DELETE:instance`)
+
+    log(`TOP OF DELETE`)
     let data = new DynamicModel({
       id: '',
     })
 
     c.bind(data)
-    console.log(`***After bind`)
+    log(`After bind`)
 
     // This is necessary for destructuring to work correctly
     data = JSON.parse(JSON.stringify(data))
 
     const id = c.pathParam('id')
 
-    console.log(
-      `***vars`,
+    log(
+      `vars`,
       JSON.stringify({
         id,
       }),
     )
 
-    const authRecord = c.get('authRecord') // empty if not authenticated as regular auth record
-    console.log(`***authRecord`, JSON.stringify(authRecord))
+    const authRecord = /** @type {models.Record} */ (c.get('authRecord')) // empty if not authenticated as regular auth record
+    log(`authRecord`, JSON.stringify(authRecord))
 
     if (!authRecord) {
       throw new BadRequestError(`Expected authRecord here`)
     }
 
-    const record = $app.dao().findRecordById('instances', id)
+    const record = dao.findRecordById('instances', id)
     if (!record) {
       throw new BadRequestError(`Instance ${id} not found.`)
     }
@@ -54,11 +57,11 @@ routerAdd(
     }
 
     const path = [$os.getenv('DATA_ROOT'), id].join('/')
-    console.log(`***path ${path}`)
+    log(`path ${path}`)
     const res = $os.removeAll(path)
-    console.log(`***res`, res)
+    log(`res`, res)
 
-    $app.dao().deleteRecord(record)
+    dao.deleteRecord(record)
 
     return c.json(200, { status: 'ok' })
   },
