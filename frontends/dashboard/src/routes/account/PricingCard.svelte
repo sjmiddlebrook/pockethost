@@ -54,7 +54,11 @@
   <div class="mt-auto">
     {#if priceAnnually[0] > 0}
       <a
-        href={checkoutMonthURL}
+        href={qtyMax > 0
+          ? $qtyRemaining > 0
+            ? checkoutMonthURL
+            : 'javascript:alert(`sold out`)'
+          : checkoutMonthURL}
         class="mt-auto mb-4 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 bg-white/10 text-white hover:bg-white/20 focus-visible:outline-white"
       >
         <span class="text-xl font-bold tracking-tight text-white">
@@ -67,7 +71,11 @@
     {/if}
     {#if priceMonthly[0] > 0}
       <a
-        href={checkoutYearURL}
+        href={qtyMax > 0
+          ? $qtyRemaining > 0
+            ? checkoutYearURL
+            : 'javascript:alert(`sold out`)'
+          : checkoutYearURL}
         class="block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 bg-white/10 text-white hover:bg-white/20 focus-visible:outline-white"
       >
         <span class="text-xl font-bold tracking-tight text-white">
