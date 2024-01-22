@@ -11,6 +11,9 @@ importers:
       '@s-libs/micro-dash':
         specifier: ^16.1.0
         version: 16.1.0
+      '@types/ssh2':
+        specifier: ^1.11.18
+        version: 1.11.18
       '@types/winston-syslog':
         specifier: ^2.4.3
         version: 2.4.3
@@ -95,6 +98,9 @@ importers:
       sqlite3:
         specifier: ^5.1.6
         version: 5.1.6
+      ssh2:
+        specifier: ^1.15.0
+        version: 1.15.0
       syslog-parse:
         specifier: ^2.0.0
         version: 2.0.0
@@ -1390,7 +1396,7 @@ packages:
     resolution: {integrity: sha512-LDkftannOJFknJDWDGbuBrT1Xu6TN28SKxsWIjbM/MHHJCO20mnuHnkkZl0YMSo7cTxvfV7V7mMkdd9ZziuSGA==}
     dependencies:
       '@types/node': 20.8.10
-      '@types/ssh2': 1.11.15
+      '@types/ssh2': 1.11.18
     dev: true
 
   /@types/dockerode@3.3.21:
@@ -1536,7 +1542,6 @@ packages:
     resolution: {integrity: sha512-OLGBaaK5V3VRBS1bAkMVP2/W9B+H8meUfl866OrMNQqt7wDgdpWPp5o6gmIc9pB+lIQHSq4ZL8ypeH1vPxcPaQ==}
     dependencies:
       undici-types: 5.26.5
-    dev: true
 
   /@types/node@20.8.10:
     resolution: {integrity: sha512-TlgT8JntpcbmKUFzjhsyhGfP2fsiz1Mv56im6enJ905xG1DAYesxJaeSbGqQmAw8OWPdhyJGhGSQGKRNJ45u9w==}
@@ -1580,11 +1585,10 @@ packages:
       '@types/node': 20.8.10
     dev: true
 
-  /@types/ssh2@1.11.15:
-    resolution: {integrity: sha512-QFPpT9Gamh+oOKWH6uDUxe8izo8NaCJaN5HdYcbCIiS3hs7fB65KAfyGWBVXaXxXLj7IhFam5Q/ZxQ4eIPc/1Q==}
+  /@types/ssh2@1.11.18:
+    resolution: {integrity: sha512-7eH4ppQMFlzvn//zhwD54MWaITR1aSc1oFBye9vb76GZ2Y9PSFYdwVIwOlxRXWs5+1hifntXyt+8a6SUbOD7Hg==}
     dependencies:
       '@types/node': 18.18.8
-    dev: true
 
   /@types/tail@2.2.2:
     resolution: {integrity: sha512-+CjjgMFjIVgTYsJXWNpAKVRerFWc9c+GTMzY/336fSW6BhY5TJwo2CNYJiNq7mO9rBHmtmpceKf2DnkrnaR3Vg==}
@@ -3014,7 +3018,7 @@ packages:
       debug: 4.3.4
       readable-stream: 3.6.2
       split-ca: 1.0.1
-      ssh2: 1.14.0
+      ssh2: 1.15.0
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -7061,8 +7065,8 @@ packages:
       - supports-color
     dev: false
 
-  /ssh2@1.14.0:
-    resolution: {integrity: sha512-AqzD1UCqit8tbOKoj6ztDDi1ffJZ2rV2SwlgrVVrHPkV5vWqGJOVp5pmtj18PunkPJAuKQsnInyKV+/Nb2bUnA==}
+  /ssh2@1.15.0:
+    resolution: {integrity: sha512-C0PHgX4h6lBxYx7hcXwu3QWdh4tg6tZZsTfXcdvc5caW/EMxaB4H9dWsl7qk+F7LAW762hp8VbXOX7x4xUYvEw==}
     engines: {node: '>=10.16.0'}
     requiresBuild: true
     dependencies:
