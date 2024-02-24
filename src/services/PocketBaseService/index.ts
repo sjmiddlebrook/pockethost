@@ -18,6 +18,7 @@ import Docker, { Container, ContainerCreateOptions } from 'dockerode'
 import { existsSync } from 'fs'
 import MemoryStream from 'memorystream'
 import { gte } from 'semver'
+import { EventEmitter } from 'stream'
 import { AsyncReturnType } from 'type-fest'
 import { PocketbaseReleaseVersionService } from '../PocketbaseReleaseVersionService'
 
@@ -105,136 +106,131 @@ export const createPocketbaseService = async (
       )
     }
 
-    const docker = new Docker()
-    iLogger.info(`Starting instance`)
-
-    const _stdoutData = (data: Buffer) => {
-      dbg(data.toString())
+    enum Events {
+      Exit = `exit`,
     }
-    stdout.on('data', _stdoutData)
-    const _stdErrData = (data: Buffer) => {
-      dbg(data.toString())
-    }
-    stderr.on('data', _stdErrData)
-    const Binds = [
-      `${mkInstanceDataPath(instanceId)}:${mkContainerHomePath()}`,
-      `${binPath}:${mkContainerHomePath(`pocketbase`)}:ro`,
-    ]
+    const emitter = new EventEmitter()
 
-    if (extraBinds.length > 0) {
-      Binds.push(...extraBinds)
-    }
+    const container = new Promise<Container>((resolve) => {
+      const docker = new Docker()
+      iLogger.info(`Starting instance`)
+      const _stdoutData = (data: Buffer) => {
+        dbg(data.toString())
+      }
+      stdout.on('data', _stdoutData)
+      const _stdErrData = (data: Buffer) => {
+        dbg(data.toString())
+      }
+      stderr.on('data', _stdErrData)
+      const Binds = [
+        `${mkInstanceDataPath(instanceId)}:${mkContainerHomePath()}`,
+        `${binPath}:${mkContainerHomePath(`pocketbase`)}:ro`,
+      ]
 
-    const createOptions: ContainerCreateOptions = {
-      Image: INSTANCE_IMAGE_NAME,
-      Env: map(
-        {
-          ...env,
-          DEV: dev && gte(realVersion.version, `0.20.1`),
-          PH_APEX_DOMAIN: APEX_DOMAIN(),
-        },
-        (v, k) => `${k}=${v}`,
-      ),
-      name: `${subdomain}-${+new Date()}`,
-      HostConfig: {
-        AutoRemove: true,
-        PortBindings: {
-          '8090/tcp': [{ HostPort: `${port}` }],
-        },
-        Binds,
-        Ulimits: [
+      if (extraBinds.length > 0) {
+        Binds.push(...extraBinds)
+      }
+
+      const createOptions: ContainerCreateOptions = {
+        Image: INSTANCE_IMAGE_NAME,
+        Env: map(
           {
-            Name: 'nofile',
-            Soft: 1024,
-            Hard: 4096,
+            ...env,
+            DEV: dev && gte(realVersion.version, `0.20.1`),
+            PH_APEX_DOMAIN: APEX_DOMAIN(),
           },
-        ],
-        LogConfig: {
-          Type: 'syslog',
-          Config: {
-            'syslog-address': `udp://${DOCKER_CONTAINER_HOST()}:${SYSLOGD_PORT()}`,
-            tag: instanceId,
+          (v, k) => `${k}=${v}`,
+        ),
+        name: `${subdomain}-${+new Date()}`,
+        HostConfig: {
+          AutoRemove: true,
+          PortBindings: {
+            '8090/tcp': [{ HostPort: `${port}` }],
+          },
+          Binds,
+          Ulimits: [
+            {
+              Name: 'nofile',
+              Soft: 1024,
+              Hard: 4096,
+            },
+          ],
+          LogConfig: {
+            Type: 'syslog',
+            Config: {
+              'syslog-address': `udp://${DOCKER_CONTAINER_HOST()}:${SYSLOGD_PORT()}`,
+              tag: instanceId,
+            },
           },
         },
-      },
-      Tty: false,
-      ExposedPorts: {
-        [`8090/tcp`]: {},
-      },
-      // User: 'pockethost',
-    }
+        Tty: false,
+        ExposedPorts: {
+          [`8090/tcp`]: {},
+        },
+        // User: 'pockethost',
+      }
 
-    createOptions.Cmd = ['node', `index.mjs`]
-    createOptions.WorkingDir = `/bootstrap`
+      createOptions.Cmd = ['node', `index.mjs`]
+      createOptions.WorkingDir = `/bootstrap`
 
-    createOptions.Cmd = ['./pocketbase', `serve`, `--http`, `0.0.0.0:8090`]
-    if (dev) {
-      createOptions.Cmd.push(`--dev`)
-    }
-    createOptions.WorkingDir = `/home/pockethost`
+      createOptions.Cmd = ['./pocketbase', `serve`, `--http`, `0.0.0.0:8090`]
+      if (dev) {
+        createOptions.Cmd.push(`--dev`)
+      }
+      createOptions.WorkingDir = `/home/pockethost`
 
-    logger.info(`Spawning ${instanceId}`)
+      logger.info(`Spawning ${instanceId}`)
 
-    dbg({ createOptions })
+      dbg({ createOptions })
 
-    let container: Container | undefined = undefined
+      docker
+        .run(
+          INSTANCE_IMAGE_NAME,
+          [''], // Supplied by createOptions
+          [stdout, stderr],
+          createOptions,
+          (err, data) => {
+            const StatusCode = (() => {
+              if (!data?.StatusCode) return 0
+              return parseInt(data.StatusCode, 10)
+            })()
+            dbg({ err, data })
+            stopped = true
+            unsub()
+            // Filter out Docker status codes
+            /*
+            https://stackoverflow.com/questions/31297616/what-is-the-authoritative-list-of-docker-run-exit-codes
+            https://tldp.org/LDP/abs/html/exitcodes.html
+            https://docs.docker.com/engine/reference/run/#exit-status
+            125, 126, 127 - Docker
+            137 - SIGKILL (expected)
+            */
+            if ((StatusCode > 0 && StatusCode !== 137) || err) {
+              iLogger.error(
+                `Unexpected stop with code ${StatusCode} and error ${err}`,
+              )
+              error(
+                `${instanceId} stopped unexpectedly with code ${StatusCode} and error ${err}`,
+              )
+              emitter.emit(Events.Exit, StatusCode || 999)
+            } else {
+              emitter.emit(Events.Exit, 0)
+            }
+          },
+        )
+        .on('container', (container: Container) => {
+          dbg(`Got container`, container)
+          started = true
+          resolve(container)
+        })
+    })
+
     let started = false
     let stopped = false
     const exitCode = new Promise<number>(async (resolveExit) => {
-      new Promise<Container>((resolveContainer, rejectContainer) => {
-        docker
-          .run(
-            INSTANCE_IMAGE_NAME,
-            [''], // Supplied by createOptions
-            [stdout, stderr],
-            createOptions,
-            (err, data) => {
-              const StatusCode = (() => {
-                if (!data?.StatusCode) return 0
-                return parseInt(data.StatusCode, 10)
-              })()
-              dbg({ err, data })
-              container = undefined
-              stopped = true
-              unsub()
-              // Filter out Docker status codes
-              /*
-              https://stackoverflow.com/questions/31297616/what-is-the-authoritative-list-of-docker-run-exit-codes
-              https://tldp.org/LDP/abs/html/exitcodes.html
-              https://docs.docker.com/engine/reference/run/#exit-status
-              125, 126, 127 - Docker
-              137 - SIGKILL (expected)
-              */
-              if ((StatusCode > 0 && StatusCode !== 137) || err) {
-                iLogger.error(
-                  `Unexpected stop with code ${StatusCode} and error ${err}`,
-                )
-                error(
-                  `${instanceId} stopped unexpectedly with code ${StatusCode} and error ${err}`,
-                )
-                resolveExit(StatusCode || 999)
-                rejectContainer()
-              } else {
-                resolveExit(0)
-              }
-            },
-          )
-          .on('container', (container: Container) => {
-            dbg(`Got container`, container)
-            started = true
-            resolveContainer(container)
-          })
-      })
-        .then((_c) => {
-          dbg(`Container has been assigned`)
-          container = _c
-        })
-        .catch(() => {
-          dbg(`Container will not be assigned`)
-          iLogger.error(`Could not start container`)
-          error(`${instanceId} could not start container`)
-        })
+      emitter.on(Events.Exit, resolveExit)
     })
+
     exitCode.then((code) => {
       iLogger.info(`Process exited with code ${code}`)
     })
