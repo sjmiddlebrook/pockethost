@@ -229,6 +229,10 @@ export const createPocketbaseService = async (
             kill: () => container.stop({ signal: `SIGKILL` }).catch(error),
           })
         })
+    }).catch((e) => {
+      error(`Error starting container`, e)
+      cm.shutdown()
+      throw e
     })
 
     const exitCode = new Promise<number>(async (resolveExit) => {
