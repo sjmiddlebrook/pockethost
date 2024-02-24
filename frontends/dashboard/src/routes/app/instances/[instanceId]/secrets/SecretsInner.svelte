@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeSample from '$components/CodeSample.svelte'
+  import { DOCS_URL } from '$src/env'
   import { forEach } from '@s-libs/micro-dash'
   import { instance } from '../store'
   import Form from './Form.svelte'
@@ -28,7 +29,7 @@
 
 <p class="mb-4">
   These secrets are passed into your <code>pocketbase</code> executable and can
-  be accessed from <code>pb_hooks</code> JS hooks.
+  be accessed from <a href={DOCS_URL(`usage`, `ftp`)}>JS hooks</a>.
 </p>
 
 <!-- If the user has any secrets, render them in a code block -->

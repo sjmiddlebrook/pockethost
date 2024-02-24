@@ -50,7 +50,7 @@ The PocketHost dashboard also provides a handy link to do this.
 Instance secrets are exposed as environment variables when your `pocketbase` executable launches. Every secret you specify here will be made available as an environment variable to the `pocketbase` process.
 
 ```ts
-// pb_hooks
+// test.pb.js
 $app.getEnv('FOO')
 ```
 

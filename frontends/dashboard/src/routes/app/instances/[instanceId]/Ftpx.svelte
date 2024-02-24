@@ -40,20 +40,24 @@
 
     <tbody>
       <tr>
-        <th>pb_data</th>
-        <td>The PocketBase data directory</td>
+        <th>backups</th>
+        <td>The PocketBase backups directory</td>
       </tr>
       <tr>
-        <th>pb_public</th>
-        <td>Public files, such as a web frontend</td>
+        <th>hooks</th>
+        <td>The PocketBase JS hooks directory</td>
       </tr>
       <tr>
-        <th>pb_migrations</th>
+        <th>migrations</th>
         <td>The PocketBase migrations directory</td>
       </tr>
       <tr>
-        <th>pb_hooks</th>
-        <td>The PocketBase JS hooks directory</td>
+        <th>public</th>
+        <td>Public files, such as a web frontend</td>
+      </tr>
+      <tr>
+        <th>storage</th>
+        <td>The PocketBase uploaded file storage directory</td>
       </tr>
     </tbody>
   </table>

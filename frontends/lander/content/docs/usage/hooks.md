@@ -10,18 +10,18 @@ description: Learn how to use PocketBase Hooks on PocketHost to write custom
 
 The prebuilt PocketBase v0.17+ executable comes with an embedded ES5 JavaScript engine (goja) which enables you to write custom server-side code using plain JavaScript.
 
-Every PocketHost instance comes with a `pb_hooks` directory which is mounted into the PocketBase instance at `/pb_hooks`. This directory is where you can place your custom server-side code.
+Every PocketHost instance comes with a `hooks` directory accessible via [FTP](/docs/usage/ftp). When your PocketBase instance runs, the contents are mounted at `/pb_hooks`. This directory is where you can place your custom server-side code.
 
 For examples and more information about PocketBase hooks, see the [PocketBase JS hooks documentation](https://pocketbase.io/docs/js-overview/).
 
 ## Quickstart
 
-You can start by creating `*.pb.js` file(s) inside the `pb_hooks` directory. The `*.pb.js` files are automatically loaded and executed by PocketBase.
+You can start by creating `*.pb.js` file(s) inside the `hooks` directory. The `*.pb.js` files are automatically loaded and executed by PocketBase.
 
 ## Important Notes
 
-- Altering the `pb_hooks` directory will cause your PocketHost instance to be restarted so changes are picked up automatically.
-- If code in `pb_hooks` causes your `pocketbase` instance to exit unexpectedly, your instance will be placed in [Maintenance Mode](/docs/usage/maintenance/) until you can correct the problem and manually move your instance out of Maintenance Mode.
+- Altering the `hooks` directory will cause your PocketHost instance to be restarted so changes are picked up automatically.
+- If code in `hooks` causes your `pocketbase` instance to exit unexpectedly, your instance will be placed in [Maintenance Mode](/docs/usage/maintenance/) until you can correct the problem and manually move your instance out of Maintenance Mode.
 
 ## Code Samples
 
@@ -30,7 +30,7 @@ You can start by creating `*.pb.js` file(s) inside the `pb_hooks` directory. The
 This example creates a hook handler and logs a message to the console. It also demonstrates how to use CommonJS `require` statements to import other modules.
 
 ```js
-// pb_hooks/main.pb.js
+// hooks/main.pb.js
 
 // This runs when the PocketBase instance is first bootstrapped
 onAfterBootstrap((e) => {
@@ -46,7 +46,7 @@ onAfterBootstrap((e) => {
 ```
 
 ```js
-// pb_hooks/config/config.js
+// hooks/config/config.js
 
 module.exports = {
   appName: 'pockethost-test',
@@ -60,7 +60,7 @@ module.exports = {
 ### Register a new HTTP route
 
 ```js
-// pb_hooks/somefile.pb.js
+// hooks/somefile.pb.js
 routerAdd('POST', '/test/:testId', (c) => {
   const testId = c.pathParam('testId')
 
@@ -86,7 +86,7 @@ const response = await pb.send('/test/theTestId', {
 ### Update a record
 
 ```js
-// pb_hooks/posts.update.pb.js
+// hooks/posts.update.pb.js
 routerAdd('PATCH', '/posts/:postId', (c) => {
   const postId = c.pathParam('postId')
 
@@ -124,7 +124,7 @@ routerAdd('PATCH', '/posts/:postId', (c) => {
 ### Create a record
 
 ```js
-// pb_hooks/posts.create.pb.js
+// hooks/posts.create.pb.js
 routerAdd('POST', '/posts', (c) => {
   // Get body data
   const body = $apis.requestInfo(c).data
@@ -155,7 +155,7 @@ routerAdd('POST', '/posts', (c) => {
 In this example, a new Stripe customer is created when a new PocketBase user is created.
 
 ```js
-// pb_hooks/users.onRegister.pb.js
+// hooks/users.onRegister.pb.js
 
 onRecordAfterCreateRequest((e) => {
   // Get the record
