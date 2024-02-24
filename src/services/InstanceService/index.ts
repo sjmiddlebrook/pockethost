@@ -506,7 +506,6 @@ export const instanceService = mkSingleton(
         } to instance ${api.internalUrl()}`,
       )
 
-      throw new Error(`Tester`)
       proxy.web(req, res, { target: api.internalUrl() })
     })
 
