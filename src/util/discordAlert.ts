@@ -1,10 +1,20 @@
 import { DISCORD_ALERT_CHANNEL_URL } from '$constants'
 
+const cache: { [_: string]: NodeJS.Timeout } = {}
+
 export const discordAlert = (message: { toString: () => string }) => {
-  console.error(message)
   const url = DISCORD_ALERT_CHANNEL_URL()
-  console.log({ url })
   if (!url) return
+  const m = message.toString()
+  const isCached = !!cache[m]
+  if (isCached) {
+    clearTimeout(cache[m])
+  }
+  cache[m] = setTimeout(() => {
+    delete cache[message.toString()]
+  })
+  if (isCached) return
+
   fetch(url, {
     method: 'POST',
     body: JSON.stringify({
