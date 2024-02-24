@@ -92,9 +92,9 @@ export const createPocketbaseService = async (
 
     logger.breadcrumb(subdomain).breadcrumb(instanceId)
     const iLogger = SyslogLogger(instanceId, 'exec')
-    cm.add(() => {
+    cm.add(async () => {
       dbg(`Shutting down iLogger`)
-      iLogger.shutdown()
+      await iLogger.shutdown()
     })
 
     const _version = version || maxVersion // If _version is blank, we use the max version available
@@ -109,19 +109,21 @@ export const createPocketbaseService = async (
     enum Events {
       Exit = `exit`,
     }
-    const emitter = new EventEmitter()
 
-    const container = new Promise<Container>((resolve) => {
+    let started = false
+    let stopped = false
+
+    const container = await new Promise<{
+      on: EventEmitter['on']
+      kill: () => Promise<void>
+    }>((resolve) => {
       const docker = new Docker()
       iLogger.info(`Starting instance`)
-      const _stdoutData = (data: Buffer) => {
+      const handleData = (data: Buffer) => {
         dbg(data.toString())
       }
-      stdout.on('data', _stdoutData)
-      const _stdErrData = (data: Buffer) => {
-        dbg(data.toString())
-      }
-      stderr.on('data', _stdErrData)
+      stdout.on('data', handleData)
+      stderr.on('data', handleData)
       const Binds = [
         `${mkInstanceDataPath(instanceId)}:${mkContainerHomePath()}`,
         `${binPath}:${mkContainerHomePath(`pocketbase`)}:ro`,
@@ -183,20 +185,21 @@ export const createPocketbaseService = async (
 
       dbg({ createOptions })
 
-      docker
+      const emitter = docker
         .run(
           INSTANCE_IMAGE_NAME,
           [''], // Supplied by createOptions
           [stdout, stderr],
           createOptions,
           (err, data) => {
+            stopped = true
+            stderr.off(`data`, handleData)
+            stdout.off(`data`, handleData)
             const StatusCode = (() => {
               if (!data?.StatusCode) return 0
               return parseInt(data.StatusCode, 10)
             })()
             dbg({ err, data })
-            stopped = true
-            unsub()
             // Filter out Docker status codes
             /*
             https://stackoverflow.com/questions/31297616/what-is-the-authoritative-list-of-docker-run-exit-codes
@@ -218,29 +221,33 @@ export const createPocketbaseService = async (
             }
           },
         )
-        .on('container', (container: Container) => {
-          dbg(`Got container`, container)
+        .on('start', (container: Container) => {
+          dbg(`Got started container`, container)
           started = true
-          resolve(container)
+          resolve({
+            on: emitter.on.bind(emitter),
+            kill: () => container.stop({ signal: `SIGKILL` }).catch(error),
+          })
         })
     })
 
-    let started = false
-    let stopped = false
     const exitCode = new Promise<number>(async (resolveExit) => {
-      emitter.on(Events.Exit, resolveExit)
+      container.on(Events.Exit, (code) => {
+        unsub()
+        resolveExit(code)
+      })
     })
 
     exitCode.then((code) => {
       iLogger.info(`Process exited with code ${code}`)
+      dbg(`Instance exited with ${code}`)
+      cm.shutdown().catch(error)
     })
     const url = mkInternalUrl(port)
     logger.breadcrumb(url)
     dbg(`Making exit hook for ${url}`)
     const unsub = asyncExitHook(async () => {
-      dbg(`Exiting process ${instanceId}`)
       await api.kill()
-      dbg(`Process ${instanceId} exited`)
     })
     await tryFetch(`${url}/api/health`, {
       preflight: async () => {
@@ -254,23 +261,8 @@ export const createPocketbaseService = async (
       exitCode,
       kill: async () => {
         dbg(`Killing`)
-        unsub()
-        if (!container) {
-          dbg(`Already exited`)
-          return
-        }
         iLogger.info(`Stopping instance`)
-        dbg(`Stopping instance`)
-        await container.stop({ signal: `SIGKILL` }).catch(error)
-        dbg(`Instance stopped`)
-        const code = await exitCode
-        dbg(`Instance exited with ${code}`)
-        iLogger.info(`Instance stopped`)
-        stderr.off('data', _stdErrData)
-        stdout.off('data', _stdoutData)
-
-        container = undefined
-        await cm.shutdown()
+        await container.kill()
       },
     }
 
