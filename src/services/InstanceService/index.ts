@@ -77,7 +77,11 @@ export const instanceService = mkSingleton(
         const retry = (interval = instanceApiCheckIntervalMs) => {
           maxTries--
           if (maxTries <= 0) {
-            reject(new Error(`Timeout obtaining instance API.`))
+            reject(
+              new Error(
+                `Timeout obtaining instance API [instance ${instance.id}]`,
+              ),
+            )
             return
           }
           dbg(`${maxTries} tries remaining. Retrying in ${interval}ms`)
@@ -502,6 +506,7 @@ export const instanceService = mkSingleton(
         } to instance ${api.internalUrl()}`,
       )
 
+      throw new Error(`Tester`)
       proxy.web(req, res, { target: api.internalUrl() })
     })
 
