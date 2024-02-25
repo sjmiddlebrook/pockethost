@@ -12,7 +12,7 @@ export const discordAlert = (message: { toString: () => string }) => {
   }
   cache[m] = setTimeout(() => {
     delete cache[message.toString()]
-  })
+  }, 60 * 1000)
   if (isCached) return
 
   fetch(url, {
