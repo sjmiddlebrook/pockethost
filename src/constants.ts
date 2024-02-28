@@ -44,7 +44,8 @@ export const _PH_PROJECT_ROOT = dirname(
 export const _APEX_DOMAIN = process.env.APEX_DOMAIN || 'pockethost.lvh.me'
 export const _HTTP_PROTOCOL = process.env.HTTP_PROTOCOL || `https:`
 export const _APP_NAME = process.env.APP_NAME || 'app'
-export const _MOTHERSHIP_NAME = process.env.MOTHERSHIP_NAME || '000mothership'
+export const _MOTHERSHIP_NAME =
+  process.env.MOTHERSHIP_NAME || 'pockethost-central'
 
 export const SETTINGS = {
   UPGRADE_MODE: mkBoolean(false),

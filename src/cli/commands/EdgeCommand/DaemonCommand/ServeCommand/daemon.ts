@@ -22,10 +22,10 @@ export async function daemon() {
   const { dbg, error, info, warn } = logger
   info(`Starting`)
 
-  await tryFetch(`${MOTHERSHIP_INTERNAL_URL(`/api/health`)}`, {})
-
   await PortService({})
   await PocketbaseService({})
+
+  await tryFetch(`${MOTHERSHIP_INTERNAL_URL(`/api/health`)}`, {})
 
   info(`Serving`)
 

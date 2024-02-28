@@ -10,7 +10,11 @@ import {
   MOTHERSHIP_PORT,
   MOTHERSHIP_SEMVER,
 } from '$constants'
-import { PocketbaseService, PortService } from '$services'
+import {
+  PocketbaseReleaseVersionService,
+  PocketbaseService,
+  PortService,
+} from '$services'
 import { LoggerService } from '$shared'
 import { gracefulExit } from '$util'
 
@@ -20,6 +24,7 @@ export async function mothership() {
   info(`Starting`)
 
   await PortService({})
+  await PocketbaseReleaseVersionService({})
   const pbService = await PocketbaseService({})
 
   /** Launch central database */
