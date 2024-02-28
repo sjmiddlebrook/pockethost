@@ -4,7 +4,7 @@
 
 ## Introduction
 
-PocketHost is the multi-user, multi-tenant hosting tool for PocketBase. Run hundreds, even thousands, of PocketBase instances at the same time from a single server.
+PocketHost is the multi-user, multi-tenant PocketBase server. Run hundreds, even thousands, of PocketBase instances at the same time on a single server or a global network.
 
 Features:
 
