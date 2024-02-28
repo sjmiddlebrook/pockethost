@@ -1,7 +1,6 @@
 import {
   DATA_ROOT,
   DEBUG,
-  DefaultSettingsService,
   LS_WEBHOOK_SECRET,
   mkContainerHomePath,
   MOTHERSHIP_APP_DIR,
@@ -10,50 +9,20 @@ import {
   MOTHERSHIP_NAME,
   MOTHERSHIP_PORT,
   MOTHERSHIP_SEMVER,
-  PH_BIN_CACHE,
-  PH_VERSIONS,
-  SETTINGS,
 } from '$constants'
-import {
-  PocketbaseReleaseVersionService,
-  PocketbaseService,
-  PortService,
-} from '$services'
-import { LoggerService, LogLevelName } from '$shared'
+import { PocketbaseService, PortService } from '$services'
+import { LoggerService } from '$shared'
 import { gracefulExit } from '$util'
-import EventSource from 'eventsource'
-// gen:import
 
-const [major, minor, patch] = process.versions.node.split('.').map(Number)
-
-if ((major || 0) < 18) {
-  throw new Error(`Node 18 or higher required.`)
-}
-
-DefaultSettingsService(SETTINGS)
-
-LoggerService({
-  level: DEBUG() ? LogLevelName.Debug : LogLevelName.Info,
-})
-
-// npm install eventsource --save
-// @ts-ignore
-global.EventSource = EventSource
-;(async () => {
-  const logger = LoggerService().create(`mothership.ts`)
+export async function mothership() {
+  const logger = LoggerService().create(`Mothership`)
   const { dbg, error, info, warn } = logger
   info(`Starting`)
-
-  const udService = await PocketbaseReleaseVersionService({
-    cachePath: PH_BIN_CACHE(),
-    checkIntervalMs: 1000 * 5 * 60,
-  })
 
   await PortService({})
   const pbService = await PocketbaseService({})
 
   /** Launch central database */
-
   info(`Serving`)
   const { url, exitCode } = await pbService.spawn({
     version: MOTHERSHIP_SEMVER(),
@@ -68,7 +37,6 @@ global.EventSource = EventSource
     extraBinds: [
       `${DATA_ROOT()}:${mkContainerHomePath(`data`)}`,
       `${MOTHERSHIP_HOOKS_DIR()}:${mkContainerHomePath(`pb_hooks`)}`,
-      `${PH_VERSIONS()}:${mkContainerHomePath(`pb_hooks`, `versions.js`)}`,
       `${MOTHERSHIP_MIGRATIONS_DIR()}:${mkContainerHomePath(`pb_migrations`)}`,
       `${MOTHERSHIP_APP_DIR()}:${mkContainerHomePath(`ph_app`)}`,
     ],
@@ -77,4 +45,4 @@ global.EventSource = EventSource
   exitCode.then((c) => {
     gracefulExit(c)
   })
-})()
+}

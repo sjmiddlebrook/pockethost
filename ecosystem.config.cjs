@@ -1,34 +1,34 @@
 module.exports = {
   apps: [
     {
-      name: `proxy`,
-      script: 'pnpm prod:proxy',
+      name: `firewall`,
+      script: 'dotenv pockethost firewall serve',
     },
     {
       name: `edge-daemon`,
-      script: 'pnpm prod:edge:daemon',
+      script: 'dotenv pockethost edge daemon ',
     },
     {
       name: `edge-ftp`,
-      script: 'pnpm prod:edge:ftp',
+      script: 'dotenv pockethost edge ftp serve',
     },
     {
       name: `edge-syslog`,
-      script: 'pnpm prod:edge:syslog',
+      script: 'dotenv pockethost edge syslog serve',
     },
     {
       name: `mothership`,
-      script: 'pnpm prod:mothership',
+      script: 'dotenv pockethost mothership serve',
     },
     {
       name: `downloader`,
       restart_delay: 60 * 60 * 1000, // 1 hour
-      script: 'pnpm download-versions',
+      script: 'dotenv pockethost download',
     },
     {
       name: `edge-health`,
       restart_delay: 60 * 1000, // 1 minute
-      script: 'pnpm prod:edge:health',
+      script: 'dotenv pockethost health',
     },
   ],
 }
