@@ -54,6 +54,14 @@ export const _INSTANCE_APP_ROOT = (...paths: string[]) =>
   join(_PH_PROJECT_ROOT, 'src', 'instance-app', ...paths)
 
 const TLS_PFX = `tls`
+
+if (_IS_DEV) {
+  mkdirSync(_SSL_HOME, { recursive: true })
+  const { key, cert } = await devcert.certificateFor(_APEX_DOMAIN, {})
+  writeFileSync(join(_SSL_HOME, `${TLS_PFX}.key`), key)
+  writeFileSync(join(_SSL_HOME, `${TLS_PFX}.cert`), cert)
+}
+
 export const SETTINGS = {
   UPGRADE_MODE: mkBoolean(false),
 
