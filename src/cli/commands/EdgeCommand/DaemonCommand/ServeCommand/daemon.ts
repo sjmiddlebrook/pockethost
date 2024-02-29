@@ -13,8 +13,7 @@ import {
   realtimeLog,
 } from '$services'
 import { LoggerService } from '$shared'
-import { discordAlert } from '$src/util/discordAlert'
-import { tryFetch } from '$util'
+import { discordAlert, tryFetch } from '$util'
 import { ErrorRequestHandler } from 'express'
 
 export async function daemon() {

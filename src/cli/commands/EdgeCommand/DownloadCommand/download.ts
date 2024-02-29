@@ -1,6 +1,7 @@
 import { DEBUG, DefaultSettingsService, SETTINGS } from '$constants'
 import { PocketbaseReleaseDownloadService } from '$services'
 import { LogLevelName, LoggerService } from '$shared'
+import { discordAlert } from '$util'
 
 export const download = async () => {
   DefaultSettingsService(SETTINGS)
@@ -14,5 +15,5 @@ export const download = async () => {
   info(`Starting`)
 
   const { check } = PocketbaseReleaseDownloadService({})
-  await check()
+  await check().catch(discordAlert)
 }
