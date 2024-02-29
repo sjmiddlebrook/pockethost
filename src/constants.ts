@@ -47,6 +47,12 @@ export const _APP_NAME = process.env.APP_NAME || 'app'
 export const _MOTHERSHIP_NAME =
   process.env.MOTHERSHIP_NAME || 'pockethost-central'
 
+export const _MOTHERSHIP_APP_ROOT = (...paths: string[]) =>
+  join(_PH_PROJECT_ROOT, 'src', 'mothership-app', ...paths)
+
+export const _INSTANCE_APP_ROOT = (...paths: string[]) =>
+  join(_PH_PROJECT_ROOT, 'src', 'instance-app', ...paths)
+
 export const SETTINGS = {
   UPGRADE_MODE: mkBoolean(false),
 
@@ -73,18 +79,11 @@ export const SETTINGS = {
   MOTHERSHIP_INTERNAL_HOST: mkString(`localhost`),
   MOTHERSHIP_ADMIN_USERNAME: mkString(),
   MOTHERSHIP_ADMIN_PASSWORD: mkString(),
-  MOTHERSHIP_MIGRATIONS_DIR: mkPath(
-    join(_PH_PROJECT_ROOT, 'dist', 'mothership-app', 'migrations'),
-  ),
-  MOTHERSHIP_HOOKS_DIR: mkPath(
-    join(_PH_PROJECT_ROOT, 'dist', 'mothership-app', `pb_hooks`, `src`),
-  ),
-  MOTHERSHIP_APP_DIR: mkPath(
-    join(_PH_PROJECT_ROOT, 'dist', 'mothership-app', `ph_app`),
-    {
-      required: false,
-    },
-  ),
+  MOTHERSHIP_MIGRATIONS_DIR: mkPath(_MOTHERSHIP_APP_ROOT(`migrations`)),
+  MOTHERSHIP_HOOKS_DIR: mkPath(_MOTHERSHIP_APP_ROOT(`pb_hooks`, `src`)),
+  MOTHERSHIP_APP_DIR: mkPath(_MOTHERSHIP_APP_ROOT(`ph_app`), {
+    required: false,
+  }),
   MOTHERSHIP_SEMVER: mkString(''),
   MOTHERSHIP_PORT: mkNumber(8091),
 
@@ -105,14 +104,12 @@ export const SETTINGS = {
   EDGE_APEX_DOMAIN: mkString(_APEX_DOMAIN),
   EDGE_MAX_ACTIVE_INSTANCES: mkNumber(20),
 
-  INSTANCE_APP_HOOKS_DIR: mkPath(
-    join(_PH_PROJECT_ROOT, `dist`, `instance-app`, `pb_hooks`),
-    { create: true },
-  ),
-  INSTANCE_APP_MIGRATIONS_DIR: mkPath(
-    join(_PH_PROJECT_ROOT, `dist`, `instance-app`, `migrations`),
-    { create: true },
-  ),
+  INSTANCE_APP_HOOKS_DIR: mkPath(_INSTANCE_APP_ROOT(`pb_hooks`), {
+    create: true,
+  }),
+  INSTANCE_APP_MIGRATIONS_DIR: mkPath(_INSTANCE_APP_ROOT(`migrations`), {
+    create: true,
+  }),
 
   DISCORD_POCKETSTREAM_URL: mkString(''),
   DISCORD_ALERT_CHANNEL_URL: mkString(''),
