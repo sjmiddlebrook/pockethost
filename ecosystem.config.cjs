@@ -2,23 +2,23 @@ module.exports = {
   apps: [
     {
       name: `firewall`,
-      script: 'pockethost firewall serve',
+      script: 'pnpm dev:cli firewall serve',
     },
     {
       name: `edge-daemon`,
-      script: 'pockethost edge daemon ',
+      script: 'pnpm dev:cli edge daemon ',
     },
     {
       name: `edge-ftp`,
-      script: 'pockethost edge ftp serve',
+      script: 'pnpm dev:cli edge ftp serve',
     },
     {
       name: `edge-syslog`,
-      script: 'pockethost edge syslog serve',
+      script: 'pnpm dev:cli edge syslog serve',
     },
     {
       name: `mothership`,
-      script: 'pockethost mothership serve',
+      script: 'pnpm dev:cli mothership serve',
     },
     {
       name: `downloader`,
