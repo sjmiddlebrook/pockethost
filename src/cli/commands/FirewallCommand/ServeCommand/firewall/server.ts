@@ -6,17 +6,19 @@ import {
   IS_DEV,
   MOTHERSHIP_NAME,
   MOTHERSHIP_PORT,
+  SSL_CERT,
+  SSL_KEY,
 } from '$constants'
+import { LoggerService } from '$src/shared'
 import { forEach } from '@s-libs/micro-dash'
 import cors from 'cors'
 import express, { ErrorRequestHandler } from 'express'
 import 'express-async-errors'
+import enforce from 'express-sslify'
 import fs from 'fs'
 import http from 'http'
-import https from 'https'
-
-import { LoggerService } from '$src/shared'
 import { createProxyMiddleware } from 'http-proxy-middleware'
+import https from 'https'
 import { createIpWhitelistMiddleware } from './cidr'
 import { createVhostProxyMiddleware } from './createVhostProxyMiddleware'
 
@@ -39,6 +41,7 @@ export const firewall = async () => {
   const app = express()
 
   app.use(cors())
+  app.use(enforce.HTTPS())
 
   // Use the IP blocker middleware
   app.use(createIpWhitelistMiddleware(IPCIDR_LIST()))
@@ -70,24 +73,18 @@ export const firewall = async () => {
   }
   app.use(errorHandler)
 
-  if (IS_DEV()) {
-    http.createServer(app).listen(80, () => {
-      debug('HTTP server running on port 80')
-    })
-  } else {
-    // HTTPS server options
-    const httpsOptions = {
-      key: fs.readFileSync(
-        '/home/pockethost/pockethost/ssl/cloudflare-privkey.pem',
-      ),
-      cert: fs.readFileSync(
-        '/home/pockethost/pockethost/ssl/cloudflare-origin.pem',
-      ),
-    }
+  http.createServer(app).listen(80, () => {
+    console.log('SSL redirect server listening on 80')
+  })
 
-    // Create HTTPS server
-    https.createServer(httpsOptions, app).listen(443, () => {
-      debug('HTTPS server running on port 443')
-    })
+  // HTTPS server options
+  const httpsOptions = {
+    key: fs.readFileSync(SSL_KEY()),
+    cert: fs.readFileSync(SSL_CERT()),
   }
+
+  // Create HTTPS server
+  https.createServer(httpsOptions, app).listen(443, () => {
+    console.log('HTTPS server running on port 443')
+  })
 }
