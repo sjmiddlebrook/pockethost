@@ -6,7 +6,7 @@ module.exports = {
     },
     {
       name: `edge-daemon`,
-      script: 'pnpm dev:cli edge daemon ',
+      script: 'pnpm dev:cli edge daemon serve',
     },
     {
       name: `edge-ftp`,
