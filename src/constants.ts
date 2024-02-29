@@ -32,12 +32,6 @@ export const _PH_HOME =
 export const _SSL_HOME = join(_PH_HOME, `ssl`)
 
 export const _IS_DEV = process.env.NODE_ENV === 'development'
-if (_IS_DEV) {
-  mkdirSync(_SSL_HOME, { recursive: true })
-  const { key, cert } = await devcert.certificateFor('pockethost.lvh.me')
-  writeFileSync(join(_SSL_HOME, `tls.key`), key)
-  writeFileSync(join(_SSL_HOME, `tls.cert`), cert)
-}
 export const _PH_PROJECT_ROOT = dirname(
   findUpSync('package.json', { cwd: dirname(realScriptPath) })!,
 )
