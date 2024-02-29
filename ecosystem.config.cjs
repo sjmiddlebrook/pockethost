@@ -26,7 +26,7 @@ module.exports = {
       script: 'pnpm dev:cli download',
     },
     {
-      name: `edge-health`,
+      name: `health`,
       restart_delay: 60 * 1000, // 1 minute
       script: 'pnpm dev:cli health',
     },
