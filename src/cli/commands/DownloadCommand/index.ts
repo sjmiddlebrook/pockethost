@@ -6,7 +6,7 @@ type Options = {
 }
 
 export const DownloadCommand = () => {
-  const cmd = new Command(`DownloadCommand`)
+  const cmd = new Command(`download`)
     .description(`Download PocketBase versions`)
     .action(async () => {
       await download()

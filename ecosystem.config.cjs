@@ -23,12 +23,12 @@ module.exports = {
     {
       name: `downloader`,
       restart_delay: 60 * 60 * 1000, // 1 hour
-      script: 'dotenv pockethost download',
+      script: 'pnpm dev:cli download',
     },
     {
       name: `edge-health`,
       restart_delay: 60 * 1000, // 1 minute
-      script: 'dotenv pockethost health',
+      script: 'pnpm dev:cli health',
     },
   ],
 }
