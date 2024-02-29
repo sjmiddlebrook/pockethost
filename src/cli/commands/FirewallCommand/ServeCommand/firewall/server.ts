@@ -10,6 +10,7 @@ import {
   SSL_KEY,
 } from '$constants'
 import { LoggerService } from '$src/shared'
+import { discordAlert } from '$util'
 import { forEach } from '@s-libs/micro-dash'
 import cors from 'cors'
 import express, { ErrorRequestHandler } from 'express'
@@ -69,6 +70,7 @@ export const firewall = async () => {
   })
 
   const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+    discordAlert(err.toString())
     res.status(500).send(err.toString())
   }
   app.use(errorHandler)
