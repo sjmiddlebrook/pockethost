@@ -35,6 +35,7 @@ export const _IS_DEV = process.env.NODE_ENV === 'development'
 export const _PH_PROJECT_ROOT = dirname(
   findUpSync('package.json', { cwd: dirname(realScriptPath) })!,
 )
+console.log({ _PH_PROJECT_ROOT })
 export const _APEX_DOMAIN = process.env.APEX_DOMAIN || 'pockethost.lvh.me'
 export const _HTTP_PROTOCOL = process.env.HTTP_PROTOCOL || `https:`
 export const _APP_NAME = process.env.APP_NAME || 'app'
@@ -44,13 +45,14 @@ export const _MOTHERSHIP_NAME =
 export const _MOTHERSHIP_APP_ROOT = (...paths: string[]) =>
   join(
     process.env.PH_MOTHERSHIP_APP_ROOT ||
-      join(_PH_PROJECT_ROOT, 'mothership-app'),
+      join(_PH_PROJECT_ROOT, `src`, 'mothership-app'),
     ...paths,
   )
 
 export const _INSTANCE_APP_ROOT = (...paths: string[]) =>
   join(
-    process.env.PH_INSTANCE_APP_ROOT || join(_PH_PROJECT_ROOT, 'instance-app'),
+    process.env.PH_INSTANCE_APP_ROOT ||
+      join(_PH_PROJECT_ROOT, `src`, 'instance-app'),
     ...paths,
   )
 
@@ -67,7 +69,6 @@ export const SETTINGS = {
   UPGRADE_MODE: mkBoolean(false),
 
   PH_HOME: mkPath(_PH_HOME),
-  PH_VERSIONS: mkPath(join(_PH_HOME, `versions.js`), { required: false }),
   PH_PROJECT_ROOT: mkPath(_PH_PROJECT_ROOT),
 
   DEBUG: mkBoolean(_IS_DEV),
@@ -190,7 +191,6 @@ export const instanceLogger = () => ioc.service('instanceLogger')
 export const UPGRADE_MODE = () => settings().UPGRADE_MODE
 
 export const PH_HOME = () => settings().PH_HOME
-export const PH_VERSIONS = () => settings().PH_VERSIONS
 export const PH_PROJECT_ROOT = () => settings().PH_PROJECT_ROOT
 
 export const DEBUG = () => settings().DEBUG

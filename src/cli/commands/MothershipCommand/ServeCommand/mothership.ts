@@ -11,17 +11,17 @@ import {
   MOTHERSHIP_NAME,
   MOTHERSHIP_PORT,
   MOTHERSHIP_SEMVER,
-  PH_VERSIONS,
 } from '$constants'
 import {
   PocketbaseReleaseVersionService,
   PocketbaseService,
   PortService,
+  SpawnConfig,
 } from '$services'
 import { LoggerService } from '$shared'
 import { gracefulExit } from '$util'
 import copyfiles from 'copyfiles'
-import { run } from 'pbgo'
+import { gobot, GobotOptions } from 'gobot'
 import { rimraf } from 'rimraf'
 
 export type MothershipConfig = { isolate: boolean }
@@ -59,29 +59,34 @@ export async function mothership(cfg: MothershipConfig) {
 
   /** Launch central database */
   info(`Serving`)
+  const bot = await gobot(`pocketbase`)
+  const env = {
+    DATA_ROOT: mkContainerHomePath(`data`),
+    LS_WEBHOOK_SECRET: LS_WEBHOOK_SECRET(),
+    PB_VERSIONS: await bot.versions('json', true),
+  }
+  dbg(env)
   if (isolate) {
     await PocketbaseReleaseVersionService({})
     const pbService = await PocketbaseService({})
-    const { url, exitCode } = await pbService.spawn({
+    const cfg: SpawnConfig = {
       version: MOTHERSHIP_SEMVER(),
       subdomain: MOTHERSHIP_NAME(),
       instanceId: MOTHERSHIP_NAME(),
       port: MOTHERSHIP_PORT(),
       dev: DEBUG(),
-      env: {
-        DATA_ROOT: mkContainerHomePath(`data`),
-        LS_WEBHOOK_SECRET: LS_WEBHOOK_SECRET(),
-      },
+      env,
       extraBinds: [
         `${DATA_ROOT()}:${mkContainerHomePath(`data`)}`,
         `${MOTHERSHIP_HOOKS_DIR()}:${mkContainerHomePath(`pb_hooks`)}`,
-        `${PH_VERSIONS()}:${mkContainerHomePath(`pb_hooks`, `versions.js`)}`,
         `${MOTHERSHIP_MIGRATIONS_DIR()}:${mkContainerHomePath(
           `pb_migrations`,
         )}`,
         `${MOTHERSHIP_APP_DIR()}:${mkContainerHomePath(`ph_app`)}`,
       ],
-    })
+    }
+    dbg(`Spawn config`, cfg)
+    const { url, exitCode } = await pbService.spawn(cfg)
     info(`Mothership URL for this session is ${url}`)
     exitCode.then((c) => {
       gracefulExit(c)
@@ -89,7 +94,6 @@ export async function mothership(cfg: MothershipConfig) {
   } else {
     await rimraf(MOTHERSHIP_DATA_ROOT(`pb_hooks`))
     await _copy(MOTHERSHIP_HOOKS_DIR(`**/*`), MOTHERSHIP_DATA_ROOT(`pb_hooks`))
-    await _copy(PH_VERSIONS(), MOTHERSHIP_DATA_ROOT(`pb_hooks`))
     await rimraf(MOTHERSHIP_DATA_ROOT(`pb_migrations`))
     await _copy(
       MOTHERSHIP_MIGRATIONS_DIR(`**/*`),
@@ -111,14 +115,13 @@ export async function mothership(cfg: MothershipConfig) {
     if (IS_DEV()) {
       args.push(`--dev`)
     }
-    dbg(args)
-    const process = run(args, {
-      env: {
-        DATA_ROOT: DATA_ROOT(),
-        LS_WEBHOOK_SECRET: LS_WEBHOOK_SECRET(),
-      },
+    const options: Partial<GobotOptions> = {
       version: MOTHERSHIP_SEMVER(),
-      debug: DEBUG(),
-    })
+      env,
+    }
+    dbg(`args`, args)
+    dbg(`options`, options)
+    const bot = await gobot(`pocketbase`, options)
+    bot.run(args, { env })
   }
 }

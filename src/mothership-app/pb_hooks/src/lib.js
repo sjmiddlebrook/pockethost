@@ -162,10 +162,14 @@ function removeEmptyKeys(obj) {
   return sanitized
 }
 
+/** @type {Lib['versions']} */
+const versions = JSON.parse($os.getenv('PB_VERSIONS'))
+
 module.exports = {
   audit,
   processNotification,
   mkLog,
   enqueueNotification,
   removeEmptyKeys,
+  versions,
 }
