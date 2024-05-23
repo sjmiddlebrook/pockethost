@@ -7,7 +7,6 @@
 .idea
 **/.env
 **/.env.*
-.pbincache
 osx
 pocketbase
 .svelte-kit

@@ -35,7 +35,6 @@ export const _IS_DEV = process.env.NODE_ENV === 'development'
 export const _PH_PROJECT_ROOT = dirname(
   findUpSync('package.json', { cwd: dirname(realScriptPath) })!,
 )
-console.log({ _PH_PROJECT_ROOT })
 export const _APEX_DOMAIN = process.env.APEX_DOMAIN || 'pockethost.lvh.me'
 export const _HTTP_PROTOCOL = process.env.HTTP_PROTOCOL || `https:`
 export const _APP_NAME = process.env.APP_NAME || 'app'
@@ -104,7 +103,6 @@ export const SETTINGS = {
   NODE_ENV: mkString(`production`),
   IS_DEV: mkBoolean(_IS_DEV),
   TRACE: mkBoolean(false),
-  PH_BIN_CACHE: mkPath(join(_PH_HOME, '.pbincache'), { create: true }),
 
   PH_FTP_PORT: mkNumber(21),
   SSL_KEY: mkPath(join(_SSL_HOME, `${TLS_PFX}.key`)),
@@ -229,7 +227,6 @@ export const DATA_ROOT = () => settings().DATA_ROOT
 export const NODE_ENV = () => settings().NODE_ENV
 export const IS_DEV = () => settings().IS_DEV
 export const TRACE = () => settings().TRACE
-export const PH_BIN_CACHE = () => settings().PH_BIN_CACHE
 
 export const PH_FTP_PORT = () => settings().PH_FTP_PORT
 export const SSL_KEY = () => settings().SSL_KEY

@@ -12,12 +12,7 @@ import {
   MOTHERSHIP_PORT,
   MOTHERSHIP_SEMVER,
 } from '$constants'
-import {
-  PocketbaseReleaseVersionService,
-  PocketbaseService,
-  PortService,
-  SpawnConfig,
-} from '$services'
+import { PocketbaseService, PortService, SpawnConfig } from '$services'
 import { LoggerService } from '$shared'
 import { gracefulExit } from '$util'
 import copyfiles from 'copyfiles'
@@ -67,7 +62,6 @@ export async function mothership(cfg: MothershipConfig) {
   }
   dbg(env)
   if (isolate) {
-    await PocketbaseReleaseVersionService({})
     const pbService = await PocketbaseService({})
     const cfg: SpawnConfig = {
       version: MOTHERSHIP_SEMVER(),
