@@ -27,6 +27,7 @@
     "memorystream",
     "middlewares",
     "Middlware",
+    "minio",
     "mothership",
     "multitenancy",
     "multitenant",

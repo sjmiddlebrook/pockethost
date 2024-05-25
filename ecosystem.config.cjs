@@ -31,5 +31,9 @@ module.exports = {
       restart_delay: 60 * 1000, // 1 minute
       script: 'pnpm prod:cli health',
     },
+    {
+      name: `minio`,
+      script: `/home/pockethost/minio server /mnt/minio --console-address ":9001"`,
+    },
   ],
 }
