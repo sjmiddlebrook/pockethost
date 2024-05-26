@@ -5,22 +5,27 @@ import {
   mkInstanceDataPath,
   SYSLOGD_PORT,
 } from '$constants'
-import { PortService } from '$services'
 import {
   createCleanupManager,
   LoggerService,
   mkSingleton,
   SingletonBaseConfig,
 } from '$shared'
-import { asyncExitHook, mkInternalUrl, SyslogLogger, tryFetch } from '$util'
+import {
+  asyncExitHook,
+  getLatestVersion,
+  getVersion,
+  mkInternalUrl,
+  SyslogLogger,
+  tryFetch,
+} from '$util'
 import { map } from '@s-libs/micro-dash'
 import Docker, { Container, ContainerCreateOptions } from 'dockerode'
-import { existsSync } from 'fs'
 import MemoryStream from 'memorystream'
 import { gte } from 'semver'
 import { EventEmitter } from 'stream'
 import { AsyncReturnType } from 'type-fest'
-import { PocketbaseReleaseVersionService } from '../PocketbaseReleaseVersionService'
+import { PortService } from '../PortService'
 
 export type Env = { [_: string]: string }
 export type SpawnConfig = {
@@ -46,7 +51,7 @@ export type PocketbaseProcess = {
   exitCode: Promise<number>
 }
 
-const INSTANCE_IMAGE_NAME = `pockethost-instance`
+const INSTANCE_IMAGE_NAME = `benallfree/pockethost-instance`
 
 export const createPocketbaseService = async (
   config: PocketbaseServiceConfig,
@@ -54,8 +59,6 @@ export const createPocketbaseService = async (
   const _serviceLogger = LoggerService().create('PocketbaseService')
   const { dbg, error, warn, abort } = _serviceLogger
 
-  const { getLatestVersion, getVersion } =
-    await PocketbaseReleaseVersionService()
   const maxVersion = getLatestVersion()
 
   const _spawn = async (cfg: SpawnConfig) => {
@@ -98,13 +101,7 @@ export const createPocketbaseService = async (
     })
 
     const _version = version || maxVersion // If _version is blank, we use the max version available
-    const realVersion = await getVersion(_version)
-    const binPath = realVersion.binPath
-    if (!existsSync(binPath)) {
-      throw new Error(
-        `PocketBase binary (${binPath}) not found. Contact pockethost.io.`,
-      )
-    }
+    const realVersion = getVersion(_version)
 
     enum Events {
       Exit = `exit`,
@@ -126,7 +123,6 @@ export const createPocketbaseService = async (
       stderr.on('data', handleData)
       const Binds = [
         `${mkInstanceDataPath(instanceId)}:${mkContainerHomePath()}`,
-        `${binPath}:${mkContainerHomePath(`pocketbase`)}:ro`,
       ]
 
       if (extraBinds.length > 0) {
@@ -138,8 +134,9 @@ export const createPocketbaseService = async (
         Env: map(
           {
             ...env,
-            DEV: dev && gte(realVersion.version, `0.20.1`),
+            DEV: dev && gte(realVersion, `0.20.1`),
             PH_APEX_DOMAIN: APEX_DOMAIN(),
+            PB_VERSION: realVersion,
           },
           (v, k) => `${k}=${v}`,
         ),
@@ -175,7 +172,20 @@ export const createPocketbaseService = async (
       createOptions.Cmd = ['node', `index.mjs`]
       createOptions.WorkingDir = `/bootstrap`
 
-      createOptions.Cmd = ['./pocketbase', `serve`, `--http`, `0.0.0.0:8090`]
+      createOptions.Cmd = [
+        'pocketbase',
+        `serve`,
+        `--http`,
+        `0.0.0.0:8090`,
+        `--dir`,
+        `/home/pockethost/pb_data`,
+        `--hooksDir`,
+        `/home/pockethost/pb_hooks`,
+        `--migrationsDir`,
+        `/home/pockethost/pb_migrations`,
+        `--publicDir`,
+        `/home/pockethost/pb_public`,
+      ]
       if (dev) {
         createOptions.Cmd.push(`--dev`)
       }
