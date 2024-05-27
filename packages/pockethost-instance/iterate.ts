@@ -1,19 +1,18 @@
-import { readFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 import versions from './versions.cjs'
 
-async function main() {
+function main() {
   const lines = [`WORKDIR /.pbincache`]
   for (let i = 0; i < versions.length; i++) {
     const version = versions[i]
-    lines.push(
-      `COPY .pbincache/${version}/x64/linux/pocketbase ${version}/pocketbase`,
-    )
+    const src = `./.pbincache/${version}/x64/linux/pocketbase`
+    lines.push(`COPY ${src} ${version}/pocketbase`)
   }
   const dockerfile = readFileSync(`./Dockerfile`, `utf8`).replace(
     /# BEGIN_PB([\s\S]*?)# END_PB/g,
     (_, content) => `# BEGIN_PB\n${lines.join(`\n`)}\n# END_PB`,
   )
-  console.log(dockerfile)
+  writeFileSync(`./Dockerfile`, dockerfile, `utf8`)
 }
 
 main()

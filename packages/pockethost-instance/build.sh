@@ -5,5 +5,5 @@ rclone sync /Users/meta/Library/Caches/gobot-nodejs/pocketbase/archives .pbincac
 find .pbincache | grep .zip | xargs rm
 find .pbincache -type f -name 'pocketbase'  | xargs chmod +x
 gobot export pocketbase cjs > versions.cjs
-tsx ./iterate.ts > Dockerfile
+tsx ./iterate.ts
 docker build . -t benallfree/pockethost-instance:$npm_package_version -t benallfree/pockethost-instance:latest
