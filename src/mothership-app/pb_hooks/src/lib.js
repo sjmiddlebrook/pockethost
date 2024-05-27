@@ -163,7 +163,7 @@ function removeEmptyKeys(obj) {
 }
 
 /** @type {Lib['versions']} */
-const versions = JSON.parse($os.getenv('PB_VERSIONS'))
+const versions = require(`${__hooks}/versions.cjs`)
 
 module.exports = {
   audit,
