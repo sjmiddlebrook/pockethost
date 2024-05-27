@@ -1,0 +1,15 @@
+{
+  "name": "pockethost-instance",
+  "version": "1.1.0",
+  "description": "Docker instance for POcketHost",
+  "scripts": {
+    "build": "./build.sh",
+    "push": "./push.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tsx": "^3.14.0"
+  }
+}

@@ -7,9 +7,9 @@ RUN adduser -D pockethost
 
 RUN echo "pockethost:password" | chpasswd
 
-WORKDIR /
-
+# BEGIN_PB
 COPY .pbincache .pbincache
+# END_PB
 
 WORKDIR /bin
 COPY pocketbase-shim.sh pocketbase

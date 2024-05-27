@@ -25,5 +25,5 @@
       "$shared": ["src/shared"]
     }
   },
-  "include": ["./src", "./buildtool", "plopfile.mjs"]
+  "include": ["./packages", "./src", "./buildtool", "plopfile.mjs"]
 }

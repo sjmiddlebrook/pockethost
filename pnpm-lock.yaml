@@ -509,6 +509,12 @@ importers:
         specifier: ^4.4.9
         version: 4.5.0(@types/node@20.8.10)(sass@1.69.5)
 
+  packages/pockethost-instance:
+    devDependencies:
+      tsx:
+        specifier: ^3.14.0
+        version: 3.14.0
+
 packages:
 
   '@11ty/dependency-tree@2.0.1':
