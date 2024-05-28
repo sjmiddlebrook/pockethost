@@ -81,8 +81,8 @@ importers:
         specifier: ^10.3.10
         version: 10.3.10
       gobot:
-        specifier: 1.0.0-alpha.38
-        version: 1.0.0-alpha.38
+        specifier: 1.0.0-alpha.39
+        version: 1.0.0-alpha.39
       gobot-pocketbase:
         specifier: 0.22.8-alpha.22
         version: 0.22.8-alpha.22
@@ -2695,6 +2695,7 @@ packages:
 
   glob@6.0.4:
     resolution: {integrity: sha512-MKZeRNyYZAVVVG1oZeLaWie1uweH40m9AZwIwxyPbTSX4hHrVYSzLg0Ro5Z5R7XKkIX+Cc6oD1rqeDJnwsB8/A==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@7.1.6:
     resolution: {integrity: sha512-LwaxwyZ72Lk7vZINtNNrywX0ZuLyStrdDtabefZKAY5ZGJhVtgdznluResxNmPitE0SAO+O26sWTHeKSI2wMBA==}
@@ -2732,8 +2733,8 @@ packages:
     resolution: {integrity: sha512-beNLlDjonodEiNNcPIxAY4yYAzxcNC0i4KUrinYboR2KtAfbeMb0zijeswVKkZBnopDYQAWqasBEFhsFO7oiUg==}
     hasBin: true
 
-  gobot@1.0.0-alpha.38:
-    resolution: {integrity: sha512-haQQmiNa25Y6X0Ix2YVyA53Wt7f7ILM+UDAeymk5MAPhdr4WJmIQmZ5F3HSzcTeq22ahQ82winmKzahK3nz2pw==}
+  gobot@1.0.0-alpha.39:
+    resolution: {integrity: sha512-nCELk7KOya33f/9eas2Ha8oLyr9gwzFBVVE8l8IchXSjHenxAAZCddqO5LiiajniLJy5zMXVK2LWDiEHwYVKXg==}
     hasBin: true
 
   gopd@1.0.1:
@@ -4879,6 +4880,10 @@ packages:
   tmp@0.2.1:
     resolution: {integrity: sha512-76SUhtfqR2Ijn+xllcI5P1oyannHNHByD80W1q447gU3mp9G9PSpGdWmjUOHRDPiHYacIk66W7ubDTuPF3BEtQ==}
     engines: {node: '>=8.17.0'}
+
+  tmp@0.2.3:
+    resolution: {integrity: sha512-nZD7m9iCPC5g0pYmcaxogYKggSfLsdxl8of3Q/oIbqCqLLIO9IAF0GWjX1z9NZRHPiXv8Wex4yDCaZsgEw0Y8w==}
+    engines: {node: '>=14.14'}
 
   to-buffer@1.1.1:
     resolution: {integrity: sha512-lx9B5iv7msuFYE3dytT+KE5tap+rNYw+K4jVkb9R/asAb+pbBSM17jtunHplhBe6RRJdZx3Pn2Jph24O32mOVg==}
@@ -7650,9 +7655,9 @@ snapshots:
 
   gobot-pocketbase@0.22.8-alpha.22:
     dependencies:
-      gobot: 1.0.0-alpha.38
+      gobot: 1.0.0-alpha.39
 
-  gobot@1.0.0-alpha.38:
+  gobot@1.0.0-alpha.39:
     dependencies:
       '@s-libs/micro-dash': 17.1.0
       bottleneck: 2.19.5
@@ -7678,6 +7683,7 @@ snapshots:
       semver: 7.6.2
       table: 6.8.2
       tar-stream: 1.6.2
+      tmp: 0.2.3
       unbzip2-stream: 1.4.3
 
   gopd@1.0.1:
@@ -10015,6 +10021,8 @@ snapshots:
   tmp@0.2.1:
     dependencies:
       rimraf: 3.0.2
+
+  tmp@0.2.3: {}
 
   to-buffer@1.1.1: {}
 
