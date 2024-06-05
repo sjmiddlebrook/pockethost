@@ -11,7 +11,7 @@ on:
         default: ''
 
 env:
-  PUBLIC_APEX_DOMAIN: ${{ vars.PUBLIC_APEX_DOMAIN }}
+  PUBLIC_APEX_DOMAIN: pockethost.io
 
 jobs:
   publish:
