@@ -5,8 +5,7 @@
   "main": "src/index.ts",
   "module": "src/index.ts",
   "type": "module",
-  "scripts": {
-  },
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
