@@ -350,15 +350,6 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
 
-  packages/plugin-console-logger:
-    dependencies:
-      '@dotenvx/dotenvx':
-        specifier: ^0.44.1
-        version: 0.44.1
-      '@pockethost/common':
-        specifier: workspace:../common
-        version: link:../common
-
   packages/pockethost:
     dependencies:
       '@dotenvx/dotenvx':
@@ -367,9 +358,6 @@ importers:
       '@pockethost/common':
         specifier: workspace:../common
         version: link:../common
-      '@pockethost/plugin-console-logger':
-        specifier: workspace:../plugin-console-logger
-        version: link:../plugin-console-logger
       '@s-libs/micro-dash':
         specifier: ^16.1.0
         version: 16.1.0
