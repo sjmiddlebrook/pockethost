@@ -31,6 +31,8 @@ jobs:
           cache: 'pnpm'
 
       - name: Prepare build
+        env:
+          PUBLIC_APEX_DOMAIN: pockethost.io
         run: |
           pnpm i
           pnpm lint
