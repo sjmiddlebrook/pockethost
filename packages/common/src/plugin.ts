@@ -1,3 +1,4 @@
+import { isString } from '@s-libs/micro-dash'
 import { Request } from 'express'
 import { LogLevelName } from './Logger'
 import { InstanceFields } from './schema'
@@ -108,11 +109,15 @@ export type PocketHostPluginApi = {
   registerAction: typeof registerAction
 }
 
-export const loadPlugins = async (plugins: string[]) => {
+export const loadPlugins = async (plugins: (string | PocketHostPlugin)[]) => {
   await Promise.all(
-    plugins.map(async (pluginPath) => {
-      const plugin = await import(pluginPath)
-      await plugin.default({ registerAction })
+    plugins.map(async (pluginPathOrModule) => {
+      const plugin = await (async () => {
+        if (!isString(pluginPathOrModule)) return pluginPathOrModule
+        const plugin = await import(pluginPathOrModule)
+        return plugin.default
+      })()
+      await plugin({ registerAction })
     }),
   )
   return plugins
