@@ -11,6 +11,9 @@ on:
         default: ''
         # https://github.com/pockethost/pockethost/actions/workflows/publish.yaml
 
+env:
+  PUBLIC_APEX_DOMAIN: ${{ vars.PUBLIC_APEX_DOMAIN }}
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -34,8 +37,6 @@ jobs:
           cache: 'pnpm'
 
       - name: Prepare build
-        env:
-          PUBLIC_APEX_DOMAIN: pockethost.io
         run: |
           pnpm i
           pnpm lint
