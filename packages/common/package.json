@@ -5,7 +5,9 @@
   "main": "src/index.ts",
   "module": "src/index.ts",
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "check:types": "tsc --noEmit "
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
