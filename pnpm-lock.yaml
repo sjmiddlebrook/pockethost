@@ -352,9 +352,6 @@ importers:
 
   packages/plugin-console-logger:
     dependencies:
-      '@dotenvx/dotenvx':
-        specifier: ^0.44.1
-        version: 0.44.1
       '@pockethost/common':
         specifier: workspace:../common
         version: link:../common
