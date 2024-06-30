@@ -60,7 +60,7 @@
     "rizzdown": "^0.0.7",
     "sherif": "^0.8.4",
     "tslib": "^2.6.2",
-    "turbo": "^2.0.4",
+    "turbo": "^2.0.6",
     "typescript": "^5.2.2"
   },
   "packageManager": "pnpm@9.4.0+sha256.b6fd0bfda555e7e584ad7e56b30c68b01d5a04f9ee93989f4b93ca8473c49c74",
