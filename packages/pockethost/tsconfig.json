@@ -16,9 +16,6 @@
     "strictNullChecks": true,
     "noEmit": true
   },
-  "include": [
-    "**/*.ts",
-    "../pending/mothership-dashboard/User.ts",
-    "../pending/mothership-dashboard/types.ts"
-  ]
+  "include": ["**/*.ts"],
+  "exclude": ["src/cli/commands/PluginCommand/plugin-template/**/*"]
 }
