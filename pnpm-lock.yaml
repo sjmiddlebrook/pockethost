@@ -74,26 +74,25 @@ importers:
       pocketbase:
         specifier: ^0.21.3
         version: 0.21.3
-      pockethost:
-        specifier: workspace:^1.6.0
-        version: link:../pockethost
     devDependencies:
       '@types/node':
         specifier: ^20.8.10
         version: 20.14.2
+      pockethost:
+        specifier: workspace:^1.6.0
+        version: link:../pockethost
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
 
   packages/plugin-cloudflare-request-logger:
-    dependencies:
-      pockethost:
-        specifier: workspace:^1.6.0
-        version: link:../pockethost
     devDependencies:
       '@types/node':
         specifier: ^20.8.10
         version: 20.14.2
+      pockethost:
+        specifier: workspace:^1.6.0
+        version: link:../pockethost
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -103,9 +102,6 @@ importers:
       json-stringify-safe:
         specifier: ^5.0.1
         version: 5.0.1
-      pockethost:
-        specifier: workspace:^1.6.0
-        version: link:../pockethost
     devDependencies:
       '@types/json-stringify-safe':
         specifier: ^5.0.2
@@ -113,6 +109,9 @@ importers:
       '@types/node':
         specifier: ^20.8.10
         version: 20.14.2
+      pockethost:
+        specifier: workspace:^1.6.0
+        version: link:../pockethost
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -143,9 +142,6 @@ importers:
       pocketbase:
         specifier: ^0.21.3
         version: 0.21.3
-      pockethost:
-        specifier: workspace:^1.6.0
-        version: link:../pockethost
     devDependencies:
       '@types/bcryptjs':
         specifier: ^2.4.6
@@ -153,6 +149,9 @@ importers:
       '@types/inquirer':
         specifier: ^9.0.7
         version: 9.0.7
+      pockethost:
+        specifier: workspace:^1.6.0
+        version: link:../pockethost
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -162,13 +161,13 @@ importers:
       inflection:
         specifier: ^3.0.0
         version: 3.0.0
-      pockethost:
-        specifier: workspace:^1.6.0
-        version: link:../pockethost
     devDependencies:
       '@types/node':
         specifier: ^20.8.10
         version: 20.14.2
+      pockethost:
+        specifier: workspace:^1.6.0
+        version: link:../pockethost
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -211,9 +210,6 @@ importers:
       lowdb:
         specifier: ^7.0.1
         version: 7.0.1
-      pockethost:
-        specifier: workspace:^1.6.0
-        version: link:../pockethost
       semver:
         specifier: ^7.6.2
         version: 7.6.2
@@ -224,6 +220,9 @@ importers:
       '@types/lowdb':
         specifier: ^1.0.15
         version: 1.0.15
+      pockethost:
+        specifier: workspace:^1.6.0
+        version: link:../pockethost
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -251,9 +250,6 @@ importers:
       lowdb:
         specifier: ^7.0.1
         version: 7.0.1
-      pockethost:
-        specifier: workspace:^1.6.0
-        version: link:../pockethost
     devDependencies:
       '@types/bcryptjs':
         specifier: ^2.4.6
@@ -267,6 +263,9 @@ importers:
       '@types/node':
         specifier: ^20.8.10
         version: 20.14.2
+      pockethost:
+        specifier: workspace:^1.6.0
+        version: link:../pockethost
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -285,9 +284,6 @@ importers:
       maildev:
         specifier: ^2.1.0
         version: 2.1.0
-      pockethost:
-        specifier: workspace:^1.6.0
-        version: link:../pockethost
     devDependencies:
       '@types/maildev':
         specifier: ^0.0.7
@@ -295,6 +291,9 @@ importers:
       '@types/node':
         specifier: ^20.8.10
         version: 20.14.2
+      pockethost:
+        specifier: workspace:^1.6.0
+        version: link:../pockethost
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -434,6 +433,9 @@ importers:
       conventional-commits-parser:
         specifier: ^5.0.0
         version: 5.0.0
+      pockethost:
+        specifier: workspace:^1.6.0
+        version: 'link:'
 
 packages:
 

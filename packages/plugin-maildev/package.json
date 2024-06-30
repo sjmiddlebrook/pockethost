@@ -27,12 +27,13 @@
     "inflection": "^3.0.0",
     "maildev": "^2.1.0"
   },
-  "peerDependencies": {
-    "pockethost": "workspace:^1.6.0"
-  },
   "devDependencies": {
     "@types/maildev": "^0.0.7",
     "@types/node": "^20.8.10",
+    "pockethost": "workspace:^1.6.0",
     "typescript": "^5.4.5"
+  },
+  "peerDependencies": {
+    "pockethost": "workspace:^1.6.0"
   }
 }

@@ -26,11 +26,12 @@
     "json-stringify-safe": "^5.0.1",
     "pocketbase": "^0.21.3"
   },
-  "peerDependencies": {
-    "pockethost": "workspace:^1.6.0"
-  },
   "devDependencies": {
     "@types/node": "^20.8.10",
+    "pockethost": "workspace:^1.6.0",
     "typescript": "^5.4.5"
+  },
+  "peerDependencies": {
+    "pockethost": "workspace:^1.6.0"
   }
 }
