@@ -1,5 +1,8 @@
 branch="$(git rev-parse --abbrev-ref HEAD)"
 if [ "$branch" = "master" ]; then
- turbo check-types
+ pnpm lint
+ pnpm -r lint 
+ pnpm sherif
+ pnpm -r check-types
 fi
 
