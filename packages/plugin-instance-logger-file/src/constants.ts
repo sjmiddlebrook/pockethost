@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url'
 export const PLUGIN_NAME = `plugin-instance-logger-file`
 
 export const HOME_DIR =
-  process.env.PH_INSTANCE_LOGGER_FILE_HOME || join(PH_HOME(),PLUGIN_NAME)
+  process.env.PH_INSTANCE_LOGGER_FILE_HOME || join(PH_HOME(), PLUGIN_NAME)
 
 export const PLUGIN_NAME_CONSTANT_CASE = underscore(PLUGIN_NAME, true)
 
@@ -19,4 +19,3 @@ export const PROJECT_DIR = (...paths: string[]) =>
 export const settings = Settings({
   PH_INSTANCE_LOGGER_FILE_HOME: mkPath(HOME_DIR, { create: true }),
 })
-
