@@ -15,6 +15,7 @@
     "sherif:fix": "sherif --fix",
     "lint": "prettier -c \"./**/*.{ts,js,cjs,svelte,json}\"",
     "lint:fix": "prettier -w \"./**/*.{ts,js,cjs,svelte,json}\"",
+    "dev": "tsx --watch ./packages/pockethost/src/cli/index.ts",
     "plop": "plop --no-progress",
     "gobot:download": "gobot download pocketbase",
     "gobot:download:all": "gobot download pocketbase --g-use-version='*'",
