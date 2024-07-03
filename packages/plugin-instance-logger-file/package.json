@@ -22,11 +22,13 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.8.10",
     "pockethost": "workspace:^1.6.0",
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "fs-extra": "^11.2.0",
     "inflection": "^3.0.0"
   },
   "peerDependencies": {

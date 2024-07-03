@@ -1,4 +1,4 @@
-import { appendFileSync, existsSync, mkdirSync } from 'fs'
+import fs from 'fs-extra'
 import {
   PocketHostPlugin,
   onAfterPluginsLoadedAction,
@@ -9,6 +9,8 @@ import { INSTANCE_DATA_DIR } from 'pockethost/core'
 import { PLUGIN_NAME, settings } from './constants'
 import { dbg } from './log'
 
+const { appendFile, ensureDir } = fs
+
 export const plugin: PocketHostPlugin = async ({}) => {
   dbg(`initializing ${PLUGIN_NAME}`)
 
@@ -17,10 +19,7 @@ export const plugin: PocketHostPlugin = async ({}) => {
   onInstanceLogAction(async ({ instance, type, data }) => {
     const { id } = instance
     const logDirectory = INSTANCE_DATA_DIR(id, `logs`)
-    if (!existsSync(logDirectory)) {
-      dbg(`Creating ${logDirectory}`)
-      mkdirSync(logDirectory, { recursive: true })
-    }
+    await ensureDir(logDirectory)
 
     const logFile = INSTANCE_DATA_DIR(id, `logs`, `exec.log`)
 
@@ -29,7 +28,7 @@ export const plugin: PocketHostPlugin = async ({}) => {
       time: +new Date(),
       message: data,
     })
-    appendFileSync(logFile, logLine + '\n')
+    await appendFile(logFile, logLine + '\n')
     dbg(`Logged: ${logLine}`)
   })
 
