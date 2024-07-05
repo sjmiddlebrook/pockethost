@@ -55,7 +55,8 @@ export const listConfig = () => {
     info(`No config values found in ${envFile()}`)
   }
 
-  const defaults = omit(settings, keys(values) as any)
+  const _settings = await doSettingsFilter(settings)
+  const defaults = omit(_settings, keys(values) as any)
   if (keys(defaults).length > 0) {
     info(`Default values:`)
     forEach(defaults, (v, k) => {
