@@ -15,31 +15,32 @@ const envFile = () => {
 const _parse = () =>
   parse(readFileSync(envFile(), { encoding: 'utf8' }).toString())
 
-  const values = _parse()
-  values[name] = value
+function write(values: DotenvParseOutput) {
   writeFileSync(
     envFile(),
     Object.entries(values)
       .map(([k, v]) => `${k}=${v}`)
       .join('\n'),
   )
-  process.env[name] = value
-  info(`Set ${name}=${value}`)
   info(`Written to ${envFile()}`)
+}
+
+export const setConfig = async (name: string, value: string) => {
+  if (value === '=') throw new Error(`Invalid value ${value}`)
+
+  const values = _parse()
+  values[name] = value
+  info(`Set ${name}=${value}`)
+  process.env[name] = value
+  write(values)
 }
 
 export const unsetConfig = (name: string) => {
   const values = _parse()
   delete values[name]
   delete process.env[name]
-  writeFileSync(
-    envFile(),
-    Object.entries(values)
-      .map(([k, v]) => `${k}=${v}`)
-      .join('\n'),
-  )
   info(`Unset ${name}`)
-  info(`Written to ${envFile()}`)
+  write(values)
 }
 
 export const listConfig = () => {
@@ -78,14 +79,8 @@ export const appendConfig = (name: string, value: string) => {
       .filter((v) => !!v) || []),
     value,
   ]).join(`,`)
-  writeFileSync(
-    envFile(),
-    Object.entries(values)
-      .map(([k, v]) => `${k}=${v}`)
-      .join('\n'),
-  )
   info(`Added ${value} to ${name}`)
-  info(`Written to ${envFile()}`)
+  write(values)
 }
 
 export const filterConfig = (name: string, value: string) => {
@@ -96,12 +91,6 @@ export const filterConfig = (name: string, value: string) => {
       .map((v) => v.trim())
       .filter((v) => v !== value) || []),
   ]).join(`,`)
-  writeFileSync(
-    envFile(),
-    Object.entries(values)
-      .map(([k, v]) => `${k}=${v}`)
-      .join('\n'),
-  )
   info(`Filtered ${value} from ${name}`)
-  info(`Written to ${envFile()}`)
+  write(values)
 }
