@@ -31,6 +31,7 @@ export const setConfig = (name: string, value: string) => {
 export const unsetConfig = (name: string) => {
   const values = _parse()
   delete values[name]
+  delete process.env[name]
   writeFileSync(
     envFile(),
     Object.entries(values)
