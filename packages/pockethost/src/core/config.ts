@@ -57,6 +57,8 @@ export const unsetConfig = (name: string) => {
 export const listConfig = async () => {
   const values = _parse()
 
+  const _settings = await doSettingsFilter(settings)
+
   if (keys(values).length > 0) {
     info()
     info(`Config values from ${envFile()}:`)
@@ -68,7 +70,6 @@ export const listConfig = async () => {
     info(`No config values found in ${envFile()}`)
   }
 
-  const _settings = await doSettingsFilter(settings)
   const defaults = omit(_settings, keys(values) as any)
   if (keys(defaults).length > 0) {
     info(`Default values:`)
