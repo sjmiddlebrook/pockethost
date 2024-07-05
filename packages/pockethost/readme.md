@@ -17,6 +17,7 @@ Extend PocketHost with its Plugin ecosystem. Start with the bare-bones dev serve
 - [Quickstart](#quickstart)
 - [Introduction](#introduction)
 - [The magic `serve` command](#the-magic-serve-command)
+- [Debugging](#debugging)
 - [Configuration](#configuration)
 - [Plugins Directory](#plugins-directory)
 - [Writing Plugins](#writing-plugins)
@@ -65,6 +66,10 @@ pockethost serve --only=plugin1,plugin2,plugin3
 ```
 
 See the plugin authoring guide for more information on how to make a plugin that responds to both methods.
+
+## Debugging
+
+PocketHost supports `--debug` command line switches. In debug mode, PocketHost will output debugging information to log channels. This includes all action and filter activity and any `dbg()` statements.
 
 ## Configuration
 

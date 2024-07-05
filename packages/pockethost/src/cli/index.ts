@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 
 import { uniq } from '@s-libs/micro-dash'
+import { boolean } from 'boolean'
 import { program } from 'commander'
 import { readFileSync } from 'fs'
 import minimist from 'minimist'
@@ -37,15 +38,18 @@ export const main = async () => {
 
   const argv = minimist<{ e: string }>(process.argv.slice(2), {
     alias: { e: 'extra-plugins' },
-    default: { e: '' },
+    default: { e: '', debug: DEBUG() },
   })
   const extraPlugins = argv.e
     .split(/,/)
     .map((s) => s.trim())
     .filter((v) => !!v)
 
+  const isDebug = boolean(argv.debug)
+  process.env.PH_DEBUG = isDebug.toString()
+
   const filteredArgv = process.argv.filter(
-    (arg) => ![`--extraPlugins`].includes(arg),
+    (arg) => ![`--debug`, `--extraPlugins`].includes(arg),
   )
 
   await loadPlugins([pockethost, ...uniq(PH_PLUGINS()), ...extraPlugins])
