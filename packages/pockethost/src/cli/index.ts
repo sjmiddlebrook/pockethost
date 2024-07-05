@@ -44,6 +44,10 @@ export const main = async () => {
     .map((s) => s.trim())
     .filter((v) => !!v)
 
+  const filteredArgv = process.argv.filter(
+    (arg) => ![`--extraPlugins`].includes(arg),
+  )
+
   await loadPlugins([pockethost, ...uniq(PH_PLUGINS()), ...extraPlugins])
 
   await doAfterPluginsLoadedAction()
@@ -64,7 +68,7 @@ export const main = async () => {
     program.addCommand(command)
   }
 
-  await program.parseAsync()
+  await program.parseAsync(filteredArgv)
 }
 
 main()
