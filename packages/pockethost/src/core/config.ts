@@ -58,7 +58,7 @@ export const listConfig = () => {
   const defaults = omit(settings, keys(values) as any)
   if (keys(defaults).length > 0) {
     info(`Default values:`)
-    forEach(settings, (v, k) => {
+    forEach(defaults, (v, k) => {
       if (k in values) return
       info(`\t${k}=${v}`)
     })
