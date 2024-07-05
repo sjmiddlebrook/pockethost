@@ -12,8 +12,8 @@ const envFile = () => {
   return envFile
 }
 
-export const setConfig = (name: string, value: string) => {
-  if (value === '=') throw new Error(`Invalid value ${value}`)
+const _parse = () =>
+  parse(readFileSync(envFile(), { encoding: 'utf8' }).toString())
 
   const values = _parse()
   values[name] = value
@@ -105,6 +105,3 @@ export const filterConfig = (name: string, value: string) => {
   info(`Filtered ${value} from ${name}`)
   info(`Written to ${envFile()}`)
 }
-
-export const _parse = () =>
-  parse(readFileSync(envFile(), { encoding: 'utf8' }).toString())
