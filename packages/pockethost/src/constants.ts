@@ -107,7 +107,12 @@ export const SETTINGS = {
   PH_FTP_PASV_PORT_MIN: mkNumber(10000),
   PH_FTP_PASV_PORT_MAX: mkNumber(20000),
 
-  EDGE_APEX_DOMAIN: mkString(_APEX_DOMAIN),
+  PH_EDGE_REGION_NAME: mkString(),
+  EDGE_APEX_DOMAIN: mkString(
+    process.env.PH_EDGE_REGION_NAME
+      ? `${process.env.PH_EDGE_REGION_NAME}.${_APEX_DOMAIN}`
+      : undefined,
+  ),
   EDGE_MAX_ACTIVE_INSTANCES: mkNumber(20),
 
   PH_INSTANCE_APP_ROOT: mkString(_INSTANCE_APP_ROOT()),
@@ -130,6 +135,11 @@ export const SETTINGS = {
   DISCORD_HEALTH_CHANNEL_URL: mkString(''),
 
   DOCKER_CONTAINER_HOST: mkString(`host.docker.internal`),
+
+  PH_WAF_EMAIL: mkString(process.env.MOTHERSHIP_ADMIN_USERNAME),
+  PH_WAF_CADDY_PATH: mkString('caddy'),
+  PH_WAF_CP_API_TOKEN: mkString(),
+  PH_WAF_ASK_PORT: mkNumber(8091),
 }
 
 export type Settings = ReturnType<typeof DefaultSettingsService>
@@ -257,14 +267,19 @@ export const DISCORD_HEALTH_CHANNEL_URL = () =>
 
 export const DOCKER_CONTAINER_HOST = () => settings().DOCKER_CONTAINER_HOST
 
+export const PH_WAF_EMAIL = () => settings().PH_WAF_EMAIL
+export const PH_WAF_CP_API_TOKEN = () => settings().PH_WAF_CP_API_TOKEN
+export const PH_WAF_CADDY_PATH = () => settings().PH_WAF_CADDY_PATH
+export const PH_WAF_ASK_PORT = () => settings().PH_WAF_ASK_PORT
+
 /** Helpers */
 
 export const MOTHERSHIP_DATA_ROOT = (...paths: string[]) =>
   join(INSTANCE_DATA_ROOT(MOTHERSHIP_NAME()), ...paths)
 export const MOTHERSHIP_DATA_DB = () =>
   join(MOTHERSHIP_DATA_ROOT(), `pb_data`, `data.db`)
-export const MOTHERSHIP_INTERNAL_URL = (path = '') =>
-  `http://${MOTHERSHIP_INTERNAL_HOST()}:${MOTHERSHIP_PORT()}${path}`
+export const MOTHERSHIP_INTERNAL_URL = (...path: string[]) =>
+  `http://${MOTHERSHIP_INTERNAL_HOST()}:${MOTHERSHIP_PORT()}${join(...path)}`
 export const INSTANCE_DATA_ROOT = (id: InstanceId) => join(DATA_ROOT(), id)
 export const INSTANCE_DATA_DB = (id: InstanceId) =>
   join(DATA_ROOT(), id, `pb_data`, `data.db`)

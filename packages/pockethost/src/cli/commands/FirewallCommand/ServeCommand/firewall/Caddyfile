@@ -1,0 +1,43 @@
+# Build Caddy: https://caddyserver.com/download?package=github.com%2Fcaddy-dns%2Fcloudflare
+
+{
+	# Global options block for settings that affect the whole Caddy server
+	email {env.PH_WAF_EMAIL}
+	# Uncomment the following line if you need to enable logging
+	log {
+        output stdout
+        format console
+    }
+    debug
+}
+
+{
+	on_demand_tls {
+		ask http://localhost:{env.PH_EDGE_PORT}/internal/ask
+	}
+}
+
+# HTTPS site configurations
+*.{env.PH_EDGE_APEX_DOMAIN} {
+	tls {
+		dns cloudflare {env.PH_WAF_CF_API_TOKEN}
+	}
+
+	handle {
+		reverse_proxy http://localhost:{env.PH_EDGE_PORT} {
+        	header_up Host {upstream_hostport}
+        }
+        # respond "hi!"
+	}
+}
+
+https:// {
+	tls {
+		on_demand
+	}
+	handle {
+		reverse_proxy http://localhost:{env.PH_EDGE_PORT} {
+        	header_up Host {upstream_hostport}
+        }
+	}
+}

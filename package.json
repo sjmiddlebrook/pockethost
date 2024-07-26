@@ -31,11 +31,12 @@
     "plop": "plop --no-progress",
     "nofile": "cat /proc/sys/fs/file-nr",
     "mail": "tsx ./packages/pockethost/src/cli/sendmail.ts",
-    "gobot": "pnpm gobot",
+    "gobot": "gobot",
     "gobot:download": "gobot download pocketbase",
     "gobot:download:all": "gobot download pocketbase --g-use-version='*'",
     "gobot:update": "gobot update pocketbase",
-    "prepare": "husky"
+    "prepare": "husky",
+    "caddy": "dotenvx run -- ./caddy_linux_amd64_custom"
   },
   "prettier": {
     "semi": false,
@@ -110,5 +111,8 @@
     "tsx": "^3.14.0",
     "type-fest": "^4.6.0",
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@dotenvx/dotenvx": "^0.44.1"
   }
 }
