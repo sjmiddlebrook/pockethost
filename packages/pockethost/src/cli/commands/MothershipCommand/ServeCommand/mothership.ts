@@ -14,9 +14,8 @@ import {
   mkContainerHomePath,
 } from '../../../../../core'
 import { PortService } from '../../../../services'
-import { freshenPocketbaseVersions } from '../freshenPocketbaseVersions'
 
-export type MothershipConfig = { isolate: boolean }
+export type MothershipConfig = { safe: boolean }
 
 const _copy = (src: string, dst: string) => {
   const { error } = LoggerService().create(`copy`)
@@ -40,12 +39,12 @@ const _copy = (src: string, dst: string) => {
 }
 
 export async function mothership(cfg: MothershipConfig) {
-  const { isolate } = cfg
+  const { safe } = cfg
   const logger = LoggerService().create(`Mothership`)
   const { dbg, error, info, warn } = logger
   info(`Starting`)
 
-  dbg(`Isolation mode:`, { isolate })
+  dbg(`Safe mode:`, { safe })
 
   await PortService({})
 
@@ -57,17 +56,9 @@ export async function mothership(cfg: MothershipConfig) {
   }
   dbg(env)
   await rimraf(MOTHERSHIP_DATA_ROOT(`pb_hooks`))
-  await _copy(MOTHERSHIP_HOOKS_DIR(`**/*`), MOTHERSHIP_DATA_ROOT(`pb_hooks`))
   await rimraf(MOTHERSHIP_DATA_ROOT(`pb_migrations`))
-  await _copy(
-    MOTHERSHIP_MIGRATIONS_DIR(`**/*`),
-    MOTHERSHIP_DATA_ROOT(`pb_migrations`),
-  )
-  await freshenPocketbaseVersions()
-  const args = [
-    `serve`,
-    `--http`,
-    `0.0.0.0:${MOTHERSHIP_PORT()}`,
+
+  const DIRS = [
     `--dir`,
     MOTHERSHIP_DATA_ROOT(`pb_data`),
     `--hooksDir`,
@@ -77,15 +68,33 @@ export async function mothership(cfg: MothershipConfig) {
     `--publicDir`,
     MOTHERSHIP_DATA_ROOT(`pb_public`),
   ]
-  if (IS_DEV()) {
-    args.push(`--dev`)
-  }
+
   const options: Partial<GobotOptions> = {
     version: MOTHERSHIP_SEMVER(),
     env,
   }
-  dbg(`args`, args)
   dbg(`options`, options)
   const bot = await gobot(`pocketbase`, options)
-  bot.run(args, { env })
+  if (!safe) {
+    // Migrate first
+    {
+      await _copy(
+        MOTHERSHIP_MIGRATIONS_DIR(`**/*`),
+        MOTHERSHIP_DATA_ROOT(`pb_migrations`),
+      )
+
+      await bot.run([`migrate`, ...DIRS], {
+        env: { ...env, MOTHERSHIP_DATA_ROOT: MOTHERSHIP_DATA_ROOT() },
+      })
+    }
+
+    await _copy(MOTHERSHIP_HOOKS_DIR(`**/*`), MOTHERSHIP_DATA_ROOT(`pb_hooks`))
+  }
+
+  const args = [`serve`, `--http`, `0.0.0.0:${MOTHERSHIP_PORT()}`, ...DIRS]
+  if (IS_DEV()) {
+    args.push(`--dev`)
+  }
+  dbg(`args`, args)
+  bot.run(args)
 }

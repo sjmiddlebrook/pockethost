@@ -95,7 +95,7 @@ export const SETTINGS = {
   MOTHERSHIP_PORT: mkNumber(8091),
 
   INITIAL_PORT_POOL_SIZE: mkNumber(20),
-  DATA_ROOT: mkPath(join(_PH_HOME, 'data')),
+  DATA_ROOT: mkPath(join(_PH_HOME, 'data'), { create: true }),
   NODE_ENV: mkString(`production`),
   IS_DEV: mkBoolean(_IS_DEV),
   TRACE: mkBoolean(false),
@@ -122,7 +122,7 @@ export const SETTINGS = {
   DISCORD_POCKETSTREAM_URL: mkString(''),
   DISCORD_ALERT_CHANNEL_URL: mkString(''),
 
-  TEST_EMAIL: mkString(),
+  TEST_EMAIL: mkString(''),
 
   LS_WEBHOOK_SECRET: mkString(''),
 
@@ -131,6 +131,15 @@ export const SETTINGS = {
   DISCORD_HEALTH_CHANNEL_URL: mkString(''),
 
   DOCKER_CONTAINER_HOST: mkString(`host.docker.internal`),
+
+  PH_WAF_ROOT: mkPath(join(_PH_HOME, 'waf'), { create: true }),
+  PH_WAF_CADDY_CONFIG: mkPath(
+    join(
+      _PH_PROJECT_ROOT,
+      'src/cli/commands/FirewallCommand/ServeCommand/firewall/Caddyfile-legacy',
+    ),
+  ),
+  PH_WAF_CF_API_TOKEN: mkString(''),
 }
 
 export type Settings = ReturnType<typeof DefaultSettingsService>
@@ -259,6 +268,10 @@ export const DISCORD_HEALTH_CHANNEL_URL = () =>
   settings().DISCORD_HEALTH_CHANNEL_URL
 
 export const DOCKER_CONTAINER_HOST = () => settings().DOCKER_CONTAINER_HOST
+
+export const PH_WAF_ROOT = (...paths: string[]) =>
+  join(settings().PH_WAF_ROOT, ...paths)
+export const PH_WAF_CADDY_CONFIG = () => settings().PH_WAF_CADDY_CONFIG
 
 /** Helpers */
 

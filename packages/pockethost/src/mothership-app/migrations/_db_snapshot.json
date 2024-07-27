@@ -1,0 +1,33 @@
+[
+  {
+    "id": "etae8tuiaxl6xfv",
+    "name": "instances",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "qdtuuld1",
+        "name": "subdomain",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": 50,
+          "pattern": "^[a-z][a-z0-9-]{2,39}$"
+        }
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_unique_qdtuuld1` ON `instances` (`subdomain`)"
+    ],
+    "listRule": "uid=@request.auth.id",
+    "viewRule": "uid = @request.auth.id",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  }
+]

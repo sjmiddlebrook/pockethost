@@ -7,6 +7,12 @@ apt-get upgrade -y
 
 # Create user pockethost with no password
 adduser --disabled-password --gecos "" pockethost
+groupadd pockethost
+usermod -aG pockethost pockethost
+chown :pockethost /mnt/pockethost
+chmod 770 /mnt/pockethost
+
+
 
 # Grant passwordless sudo privileges to pockethost
 echo "pockethost ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/pockethost

@@ -94,7 +94,11 @@ export const sendMail = async () => {
           return limiter.schedule(async () => {
             if (!confirm) {
               const old = user.email
-              user.email = TEST_EMAIL()
+              const testEmail = TEST_EMAIL()
+              if(!testEmail) {
+                throw new Error('TEST_EMAIL is not set')
+              }
+              user.email = testEmail
               info(`Sending to ${user.email} masking ${old}`)
             } else {
               info(`Sending to ${user.email}`)
