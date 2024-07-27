@@ -1938,7 +1938,21 @@ migrate(
       },
     ]
 
+    const sorted = [`users`, `verified_users`]
     const collections = snapshot.map((item) => new Collection(item))
+    collections.sort((a, b) => {
+      const indexA = sorted.indexOf(a.name)
+      const indexB = sorted.indexOf(b.name)
+      if (indexA === -1 && indexB === -1) {
+        return 0 // both items are missing in sorted array, maintain original order
+      } else if (indexA === -1) {
+        return 1 // a is missing in sorted array, move it after b
+      } else if (indexB === -1) {
+        return -1 // b is missing in sorted array, move it after a
+      } else {
+        return indexA - indexB // sort by index in sorted array
+      }
+    })
 
     return Dao(db).importCollections(collections, true, null)
   },
