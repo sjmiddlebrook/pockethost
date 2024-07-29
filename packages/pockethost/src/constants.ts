@@ -108,9 +108,9 @@ export const SETTINGS = {
   PH_FTP_PASV_PORT_MIN: mkNumber(10000),
   PH_FTP_PASV_PORT_MAX: mkNumber(20000),
 
+  EDGE_REGION_NAME: mkString(`sfo-1`),
   EDGE_SASS_DOMAINS_AUTH_TOKEN: mkString(``),
   EDGE_APEX_DOMAIN: mkString(_APEX_DOMAIN),
-  EDGE_MAX_ACTIVE_INSTANCES: mkNumber(20),
 
   PH_INSTANCE_APP_ROOT: mkString(_INSTANCE_APP_ROOT()),
   INSTANCE_APP_HOOKS_DIR: mkPath(_INSTANCE_APP_ROOT(`pb_hooks`), {
@@ -187,7 +187,8 @@ export const instanceLogger = () => ioc.service('instanceLogger')
 export const PH_PLUGINS = () => settings().PH_PLUGINS
 export const UPGRADE_MODE = () => settings().UPGRADE_MODE
 
-export const PH_HOME = () => settings().PH_HOME
+export const PH_HOME = (...paths: string[]) =>
+  join(settings().PH_HOME, ...paths)
 export const PH_PROJECT_ROOT = () => settings().PH_PROJECT_ROOT
 
 export const DEBUG = () => settings().DEBUG
@@ -232,11 +233,10 @@ export const PH_FTP_PASV_IP = () => settings().PH_FTP_PASV_IP
 export const PH_FTP_PASV_PORT_MIN = () => settings().PH_FTP_PASV_PORT_MIN
 export const PH_FTP_PASV_PORT_MAX = () => settings().PH_FTP_PASV_PORT_MAX
 
+export const EDGE_REGION_NAME = () => settings().EDGE_REGION_NAME
 export const EDGE_SASS_DOMAINS_AUTH_TOKEN = () =>
   settings().EDGE_SASS_DOMAINS_AUTH_TOKEN
 export const EDGE_APEX_DOMAIN = () => settings().EDGE_APEX_DOMAIN
-export const EDGE_MAX_ACTIVE_INSTANCES = () =>
-  settings().EDGE_MAX_ACTIVE_INSTANCES
 
 export const INSTANCE_APP_HOOK_DIR = () => settings().INSTANCE_APP_HOOKS_DIR
 export const INSTANCE_APP_MIGRATIONS_DIR = () =>

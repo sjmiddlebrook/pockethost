@@ -3,7 +3,7 @@
 # Update the package list and upgrade all packages
 apt-get update -y
 apt-get upgrade -y
-apt-get install certbot python3-certbot-dns-cloudflare -y
+apt-get install certbot python3-certbot-dns-cloudflare ca-certificates -y
 
 
 # Create user pockethost with no password

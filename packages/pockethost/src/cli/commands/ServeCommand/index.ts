@@ -1,9 +1,9 @@
 import { Command } from 'commander'
 import { LoggerService } from '../../../common'
 import { daemon } from '../EdgeCommand/DaemonCommand/ServeCommand/daemon'
+import { ftp } from '../EdgeCommand/FtpCommand/ServeCommand/ftp'
 import { syslog } from '../EdgeCommand/SyslogCommand/ServeCommand/syslog'
 import { firewall } from '../FirewallCommand/ServeCommand/firewall/server'
-import { mothership } from '../MothershipCommand/ServeCommand/mothership'
 
 type Options = {
   isolate: boolean
@@ -19,8 +19,8 @@ export const ServeCommand = () => {
       info(`Starting`)
 
       await syslog()
-      await mothership(options)
       await daemon()
+      await ftp()
       await firewall()
     })
   return cmd

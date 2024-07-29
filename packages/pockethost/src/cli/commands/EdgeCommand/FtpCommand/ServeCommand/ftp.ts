@@ -7,7 +7,7 @@ export async function ftp() {
   const { dbg, error, info, warn } = logger
   info(`Starting`)
 
-  await tryFetch(`${MOTHERSHIP_INTERNAL_URL(`/api/health`)}`, {})
+  await tryFetch(MOTHERSHIP_INTERNAL_URL(`/api/health`), { timeoutMs: 5000 })
 
   await ftpService({
     mothershipUrl: MOTHERSHIP_INTERNAL_URL(),

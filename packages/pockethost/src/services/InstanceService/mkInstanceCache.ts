@@ -1,6 +1,7 @@
 import { forEach } from '@s-libs/micro-dash'
 import {
   EDGE_APEX_DOMAIN,
+  EDGE_REGION_NAME,
   INSTANCE_COLLECTION,
   InstanceFields_WithUser,
   InstanceId,
@@ -8,13 +9,12 @@ import {
   PocketBase,
   UserFields,
   UserId,
-  stringify,
 } from '../../../core'
 
 export const mkInstanceCache = (client: PocketBase) => {
   const { dbg, error } = LoggerService().create(`InstanceCache`)
 
-  const byInstanceId: { [_: InstanceId]: InstanceFields_WithUser | undefined } =
+  const byHostName: { [_: InstanceId]: InstanceFields_WithUser | undefined } =
     {}
   const byUid: {
     [_: UserId]: { [_: InstanceId]: InstanceFields_WithUser }
@@ -25,13 +25,12 @@ export const mkInstanceCache = (client: PocketBase) => {
     .subscribe<UserFields>(`*`, (e) => {
       const { action, record } = e
       if ([`create`, `update`].includes(action)) {
-        dbg({ action, record })
+        if (!(record.id in byUid)) return
         updateUser(record)
       }
     })
     .catch((e) => {
-      error(`Failed to subscribe to users`, e, stringify(e, null, 2))
-      console.log(e)
+      error(`Failed to subscribe to users`, e)
     })
 
   client
@@ -42,44 +41,62 @@ export const mkInstanceCache = (client: PocketBase) => {
         const { action, record } = e
         if ([`create`, `update`].includes(action)) {
           setItem(record)
-          dbg({ action, record })
         }
       },
       { expand: 'uid' },
     )
     .catch((e) => {
-      error(`Failed to subscribe to instances`, e, stringify(e, null, 2))
+      error(`Failed to subscribe to instances`, e)
     })
 
+  client
+    .collection(`instances`)
+    .getFullList<InstanceFields_WithUser>({
+      filter: `region = '${EDGE_REGION_NAME()}'`,
+      expand: 'uid',
+    })
+    .then((records) => {
+      records.forEach((record) => {
+        setItem(record)
+      })
+    })
+    .catch((e) => error(`Failed to get instances`, e))
+
   function blankItem(host: string) {
-    byInstanceId[host] = undefined
+    byHostName[host] = undefined
   }
 
   function updateUser(record: UserFields) {
+    dbg(`Updating user ${record.email} (${record.id})`)
     forEach(byUid[record.id], (extendedInstance) => {
       extendedInstance.expand.uid = record
     })
   }
 
   function setItem(record: InstanceFields_WithUser) {
-    if (record.cname) {
-      byInstanceId[record.cname] = record
+    if (record.region !== EDGE_REGION_NAME()) {
+      dbg(`Skipping instance ${record.subdomain} (${record.id})`)
+      return
     }
-    byInstanceId[`${record.subdomain}.${EDGE_APEX_DOMAIN()}`] = record
-    byInstanceId[`${record.id}.${EDGE_APEX_DOMAIN()}`] = record
+    if (record.cname) {
+      byHostName[record.cname] = record
+    }
+    byHostName[`${record.subdomain}.${EDGE_APEX_DOMAIN()}`] = record
+    byHostName[`${record.id}.${EDGE_APEX_DOMAIN()}`] = record
     byUid[record.uid] = {
       ...byUid[record.uid],
       [record.id]: record,
     }
+    dbg(`Updating instance ${record.subdomain} (${record.id})`)
     updateUser(record.expand.uid)
   }
 
   function getItem(host: string) {
-    return byInstanceId[host]
+    return byHostName[host]
   }
 
   function hasItem(host: string) {
-    return host in byInstanceId
+    return host in byHostName
   }
 
   return { setItem, getItem, blankItem, hasItem }
