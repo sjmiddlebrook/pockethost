@@ -39,6 +39,7 @@ git clone git@github.com:pockethost/pockethost.git
 cd pockethost
 nvm install
 npm i -g pnpm pm2
+pnpm i
 
 # create .secret/certbot-cloudflare-dns-auth.ini (copy from another server)
 chmod 600 .secret/certbot-cloudflare-dns-auth.ini
