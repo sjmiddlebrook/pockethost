@@ -132,6 +132,9 @@ export const SETTINGS = {
   DISCORD_HEALTH_CHANNEL_URL: mkString(''),
 
   DOCKER_CONTAINER_HOST: mkString(`host.docker.internal`),
+
+  PH_GOBOT_ROOT: mkPath(join(_PH_HOME, 'gobot'), { create: true }),
+
 }
 
 export type Settings = ReturnType<typeof DefaultSettingsService>
@@ -258,6 +261,10 @@ export const DISCORD_HEALTH_CHANNEL_URL = () =>
   settings().DISCORD_HEALTH_CHANNEL_URL
 
 export const DOCKER_CONTAINER_HOST = () => settings().DOCKER_CONTAINER_HOST
+
+export const PH_GOBOT_ROOT = (...paths: string[]) =>
+  join(settings().PH_GOBOT_ROOT, ...paths)
+
 
 /** Helpers */
 
