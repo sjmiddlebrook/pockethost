@@ -37,20 +37,7 @@ http:// {
     }
 }
 
-
-{$MOTHERSHIP_NAME}.{$PH_EDGE_REGION}.{$APEX_DOMAIN} {
-	import cors
-	import healthcheck
-	handle {
-		reverse_proxy localhost:{$MOTHERSHIP_PORT}
-	}
-
-	handle_errors {
-		respond "PocketHost mothership is temporarily unavailable. Use Discord for fastest support: {$DISCORD_INVITE_URL}" 500
-	}
-}
-
-*.{$PH_EDGE_REGION}.{$APEX_DOMAIN} {
+*.{$PH_EDGE_REGION_NAME}.{$APEX_DOMAIN} {
 	tls {
 		dns cloudflare {$PH_WAF_CF_API_TOKEN}
 	}

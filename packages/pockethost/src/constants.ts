@@ -108,7 +108,7 @@ export const SETTINGS = {
   PH_FTP_PASV_PORT_MIN: mkNumber(10000),
   PH_FTP_PASV_PORT_MAX: mkNumber(20000),
 
-  EDGE_REGION_NAME: mkString(`sfo-1`),
+  PH_EDGE_REGION_NAME: mkString(`sfo-1`),
   EDGE_SASS_DOMAINS_AUTH_TOKEN: mkString(``),
   EDGE_APEX_DOMAIN: mkString(_APEX_DOMAIN),
 
@@ -135,6 +135,14 @@ export const SETTINGS = {
 
   PH_GOBOT_ROOT: mkPath(join(_PH_HOME, 'gobot'), { create: true }),
 
+  PH_WAF_ROOT: mkPath(join(_PH_HOME, 'waf'), { create: true }),
+  PH_WAF_CADDY_CONFIG: mkPath(
+    join(
+      _PH_PROJECT_ROOT,
+      'src/cli/commands/FirewallCommand/ServeCommand/firewall/Caddyfile-edge',
+    ),
+  ),
+  PH_WAF_CF_API_TOKEN: mkString(''),
 }
 
 export type Settings = ReturnType<typeof DefaultSettingsService>
@@ -236,7 +244,7 @@ export const PH_FTP_PASV_IP = () => settings().PH_FTP_PASV_IP
 export const PH_FTP_PASV_PORT_MIN = () => settings().PH_FTP_PASV_PORT_MIN
 export const PH_FTP_PASV_PORT_MAX = () => settings().PH_FTP_PASV_PORT_MAX
 
-export const EDGE_REGION_NAME = () => settings().EDGE_REGION_NAME
+export const PH_EDGE_REGION_NAME = () => settings().PH_EDGE_REGION_NAME
 export const EDGE_SASS_DOMAINS_AUTH_TOKEN = () =>
   settings().EDGE_SASS_DOMAINS_AUTH_TOKEN
 export const EDGE_APEX_DOMAIN = () => settings().EDGE_APEX_DOMAIN
@@ -265,6 +273,10 @@ export const DOCKER_CONTAINER_HOST = () => settings().DOCKER_CONTAINER_HOST
 export const PH_GOBOT_ROOT = (...paths: string[]) =>
   join(settings().PH_GOBOT_ROOT, ...paths)
 
+export const PH_WAF_ROOT = (...paths: string[]) =>
+  join(settings().PH_WAF_ROOT, ...paths)
+export const PH_WAF_CADDY_CONFIG = () => settings().PH_WAF_CADDY_CONFIG
+export const PH_WAF_CF_API_TOKEN = () => settings().PH_WAF_CF_API_TOKEN
 
 /** Helpers */
 

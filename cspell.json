@@ -4,6 +4,7 @@
     "authstore",
     "autocancel",
     "automigrate",
+    "Caddyfile",
     "Certbot",
     "copyfiles",
     "czvf",

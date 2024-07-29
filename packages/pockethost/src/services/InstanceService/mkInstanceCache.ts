@@ -1,11 +1,11 @@
 import { forEach } from '@s-libs/micro-dash'
 import {
   EDGE_APEX_DOMAIN,
-  EDGE_REGION_NAME,
   INSTANCE_COLLECTION,
   InstanceFields_WithUser,
   InstanceId,
   LoggerService,
+  PH_EDGE_REGION_NAME,
   PocketBase,
   UserFields,
   UserId,
@@ -52,7 +52,7 @@ export const mkInstanceCache = (client: PocketBase) => {
   client
     .collection(`instances`)
     .getFullList<InstanceFields_WithUser>({
-      filter: `region = '${EDGE_REGION_NAME()}'`,
+      filter: `region = '${PH_EDGE_REGION_NAME()}'`,
       expand: 'uid',
     })
     .then((records) => {
@@ -74,7 +74,7 @@ export const mkInstanceCache = (client: PocketBase) => {
   }
 
   function setItem(record: InstanceFields_WithUser) {
-    if (record.region !== EDGE_REGION_NAME()) {
+    if (record.region !== PH_EDGE_REGION_NAME()) {
       dbg(`Skipping instance ${record.subdomain} (${record.id})`)
       return
     }
