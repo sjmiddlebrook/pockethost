@@ -8,38 +8,51 @@ import {
   PocketBase,
   UserFields,
   UserId,
+  stringify,
 } from '../../../core'
 
 export const mkInstanceCache = (client: PocketBase) => {
-  const { dbg } = LoggerService().create(`InstanceCache`)
+  const { dbg, error } = LoggerService().create(`InstanceCache`)
 
-  const cache: { [_: InstanceId]: InstanceFields_WithUser | undefined } = {}
+  const byInstanceId: { [_: InstanceId]: InstanceFields_WithUser | undefined } =
+    {}
   const byUid: {
     [_: UserId]: { [_: InstanceId]: InstanceFields_WithUser }
   } = {}
 
-  client.collection(`users`).subscribe<UserFields>(`*`, (e) => {
-    const { action, record } = e
-    if ([`create`, `update`].includes(action)) {
-      dbg({ action, record })
-      updateUser(record)
-    }
-  })
-
-  client.collection(INSTANCE_COLLECTION).subscribe<InstanceFields_WithUser>(
-    `*`,
-    (e) => {
+  client
+    .collection(`users`)
+    .subscribe<UserFields>(`*`, (e) => {
       const { action, record } = e
       if ([`create`, `update`].includes(action)) {
-        setItem(record)
         dbg({ action, record })
+        updateUser(record)
       }
-    },
-    { expand: 'uid' },
-  )
+    })
+    .catch((e) => {
+      error(`Failed to subscribe to users`, e, stringify(e, null, 2))
+      console.log(e)
+    })
+
+  client
+    .collection(INSTANCE_COLLECTION)
+    .subscribe<InstanceFields_WithUser>(
+      `*`,
+      (e) => {
+        const { action, record } = e
+        if ([`create`, `update`].includes(action)) {
+          setItem(record)
+          dbg({ action, record })
+        }
+      },
+      { expand: 'uid' },
+    )
+    .catch((e) => {
+      error(`Failed to subscribe to instances`, e, stringify(e, null, 2))
+    })
 
   function blankItem(host: string) {
-    cache[host] = undefined
+    byInstanceId[host] = undefined
   }
 
   function updateUser(record: UserFields) {
@@ -50,10 +63,10 @@ export const mkInstanceCache = (client: PocketBase) => {
 
   function setItem(record: InstanceFields_WithUser) {
     if (record.cname) {
-      cache[record.cname] = record
+      byInstanceId[record.cname] = record
     }
-    cache[`${record.subdomain}.${EDGE_APEX_DOMAIN()}`] = record
-    cache[`${record.id}.${EDGE_APEX_DOMAIN()}`] = record
+    byInstanceId[`${record.subdomain}.${EDGE_APEX_DOMAIN()}`] = record
+    byInstanceId[`${record.id}.${EDGE_APEX_DOMAIN()}`] = record
     byUid[record.uid] = {
       ...byUid[record.uid],
       [record.id]: record,
@@ -62,11 +75,11 @@ export const mkInstanceCache = (client: PocketBase) => {
   }
 
   function getItem(host: string) {
-    return cache[host]
+    return byInstanceId[host]
   }
 
   function hasItem(host: string) {
-    return host in cache
+    return host in byInstanceId
   }
 
   return { setItem, getItem, blankItem, hasItem }

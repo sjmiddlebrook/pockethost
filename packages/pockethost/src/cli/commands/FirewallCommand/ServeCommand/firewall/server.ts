@@ -27,7 +27,7 @@ export const firewall = async () => {
   const { debug } = LoggerService().create(`proxy`)
 
   const PROD_ROUTES = {
-    [`${MOTHERSHIP_NAME()}.${APEX_DOMAIN()}`]: `http://localhost:${MOTHERSHIP_PORT()}`,
+    // [`${MOTHERSHIP_NAME()}.${APEX_DOMAIN()}`]: `http://localhost:${MOTHERSHIP_PORT()}`,
   }
   const DEV_ROUTES = {
     [`mail.${APEX_DOMAIN()}`]: `http://localhost:${1080}`,

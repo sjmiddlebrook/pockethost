@@ -3,11 +3,11 @@ import { discordAlert } from './discordAlert'
 import { gracefulExit } from './exit'
 ;['unhandledRejection', 'uncaughtException'].forEach((type) => {
   process.on(type, (e) => {
-    console.error(e)
+    console.error(`Unhandled:`, e)
     try {
       discordAlert(e)
     } catch (e) {
-      console.error(e)
+      console.error(`Failed to alert Discord:`, e)
     }
     const debug = (() => {
       try {
@@ -17,7 +17,7 @@ import { gracefulExit } from './exit'
       }
     })()
     if (debug) {
-      console.error(e.stack)
+      console.error(`Unhandled debug trace:`, e.stack)
       gracefulExit()
     }
   })

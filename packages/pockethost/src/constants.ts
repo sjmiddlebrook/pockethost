@@ -37,6 +37,7 @@ export const _HTTP_PROTOCOL = process.env.HTTP_PROTOCOL || `https:`
 export const _APP_NAME = process.env.APP_NAME || 'app'
 export const _MOTHERSHIP_NAME =
   process.env.MOTHERSHIP_NAME || 'pockethost-central'
+export const _MOTHERSHIP_PORT = parseInt(process.env.MOTHERSHIP_PORT || '8090')
 
 export const _MOTHERSHIP_APP_ROOT = (...paths: string[]) =>
   join(
@@ -82,7 +83,8 @@ export const SETTINGS = {
     `${_HTTP_PROTOCOL}//${_MOTHERSHIP_NAME}.${_APEX_DOMAIN}`,
   ),
   MOTHERSHIP_NAME: mkString(_MOTHERSHIP_NAME),
-  MOTHERSHIP_INTERNAL_HOST: mkString(`localhost`),
+  MOTHERSHIP_PORT: mkNumber(_MOTHERSHIP_PORT),
+  MOTHERSHIP_INTERNAL_URL: mkString(`http://localhost:${_MOTHERSHIP_PORT}`),
   MOTHERSHIP_ADMIN_USERNAME: mkString(),
   MOTHERSHIP_ADMIN_PASSWORD: mkString(),
   PH_MOTHERSHIP_APP_ROOT: mkString(_MOTHERSHIP_APP_ROOT()),
@@ -92,10 +94,9 @@ export const SETTINGS = {
     required: false,
   }),
   MOTHERSHIP_SEMVER: mkString('*'),
-  MOTHERSHIP_PORT: mkNumber(8091),
 
   INITIAL_PORT_POOL_SIZE: mkNumber(20),
-  DATA_ROOT: mkPath(join(_PH_HOME, 'data')),
+  DATA_ROOT: mkPath(join(_PH_HOME, 'data'), { create: true }),
   NODE_ENV: mkString(`production`),
   IS_DEV: mkBoolean(_IS_DEV),
   TRACE: mkBoolean(false),
@@ -205,8 +206,6 @@ export const DAEMON_PORT = () => settings().DAEMON_PORT
 export const DAEMON_PB_IDLE_TTL = () => settings().DAEMON_PB_IDLE_TTL
 
 export const MOTHERSHIP_URL = () => settings().MOTHERSHIP_URL
-export const MOTHERSHIP_INTERNAL_HOST = () =>
-  settings().MOTHERSHIP_INTERNAL_HOST
 export const MOTHERSHIP_NAME = () => settings().MOTHERSHIP_NAME
 export const MOTHERSHIP_ADMIN_USERNAME = () =>
   settings().MOTHERSHIP_ADMIN_USERNAME
@@ -266,8 +265,8 @@ export const MOTHERSHIP_DATA_ROOT = (...paths: string[]) =>
   join(INSTANCE_DATA_ROOT(MOTHERSHIP_NAME()), ...paths)
 export const MOTHERSHIP_DATA_DB = () =>
   join(MOTHERSHIP_DATA_ROOT(), `pb_data`, `data.db`)
-export const MOTHERSHIP_INTERNAL_URL = (path = '') =>
-  `http://${MOTHERSHIP_INTERNAL_HOST()}:${MOTHERSHIP_PORT()}${path}`
+export const MOTHERSHIP_INTERNAL_URL = (...path: string[]) =>
+  join(settings().MOTHERSHIP_INTERNAL_URL, ...path)
 export const INSTANCE_DATA_ROOT = (id: InstanceId) => join(DATA_ROOT(), id)
 export const INSTANCE_DATA_DB = (id: InstanceId) =>
   join(DATA_ROOT(), id, `pb_data`, `data.db`)
