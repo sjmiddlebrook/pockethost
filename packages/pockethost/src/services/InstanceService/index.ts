@@ -437,6 +437,7 @@ export const instanceService = mkSingleton(
 
     const cache = await mkInstanceCache(client.client)
     const getInstance = async (host: string) => {
+      dbg(`Searching cache for '${host}'`)
       const item = cache.getItem(host)
       if (item && item.region !== PH_EDGE_REGION_NAME()) {
         throw new Error(`${host} is not in the ${PH_EDGE_REGION_NAME()} region`)
