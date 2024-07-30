@@ -15,10 +15,10 @@ export const ServeCommand = () => {
       const { dbg, error, info, warn } = logger
       info(`Starting`)
 
-      await syslog()
-      await daemon()
-      await ftp()
       await firewall()
+      await syslog()
+      await ftp()
+      await daemon()
     })
   return cmd
 }
