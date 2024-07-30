@@ -15,6 +15,7 @@ import {
   proxyService,
   realtimeLog,
 } from '../../../../../services'
+import { InstanceMirrorClient } from '../../MirrorCommand/ServeCommand/client'
 
 export async function daemon() {
   const logger = LoggerService().create(`EdgeDaemonCommand`)
@@ -34,6 +35,7 @@ export async function daemon() {
     username: MOTHERSHIP_ADMIN_USERNAME(),
     password: MOTHERSHIP_ADMIN_PASSWORD(),
   })
+  await InstanceMirrorClient({})
 
   await proxyService({
     coreInternalUrl: MOTHERSHIP_URL(),

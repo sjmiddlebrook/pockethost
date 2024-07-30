@@ -4,15 +4,19 @@ import {
   InstanceFields_WithUser,
   InstanceId,
   LoggerService,
-  PocketBase,
   UserFields,
   UserId,
   mkInstanceCanonicalHostname,
   mkInstanceHostname,
-} from '../../../core'
+  mkSingleton,
+} from '../../../../../../core'
+import { MothershipAdminClientService } from '../../../../../services'
 
-export const mkInstanceCache = async (client: PocketBase) => {
-  const { dbg, error } = LoggerService().create(`InstanceCache`)
+export const InstanceMirror = mkSingleton(async () => {
+  const { dbg, error } = LoggerService().create(`InstanceMirror`)
+
+  const adminSvc = await MothershipAdminClientService()
+  const { client } = adminSvc.client
 
   const cleanupById: { [_: InstanceId]: () => void } = {}
   const byId: { [_: InstanceId]: InstanceFields_WithUser | undefined } = {}
@@ -62,10 +66,6 @@ export const mkInstanceCache = async (client: PocketBase) => {
     })
     .catch((e) => error(`Failed to get instances`, e))
 
-  function blankItem(host: string) {
-    byHostName[host] = undefined
-  }
-
   function updateUser(record: UserFields) {
     dbg(`Updating user ${record.email} (${record.id})`)
     forEach(byUid[record.id], (extendedInstance) => {
@@ -106,9 +106,5 @@ export const mkInstanceCache = async (client: PocketBase) => {
     return byHostName[host]
   }
 
-  function hasItem(host: string) {
-    return host in byHostName
-  }
-
-  return { setItem, getItem, blankItem, hasItem }
-}
+  return { getItem }
+})

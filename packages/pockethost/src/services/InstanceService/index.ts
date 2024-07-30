@@ -30,6 +30,7 @@ import {
   now,
   stringify,
 } from '../../../core'
+import { InstanceMirrorClient } from '../../cli/commands/EdgeCommand/MirrorCommand/ServeCommand/client'
 import {
   InstanceLogger,
   MothershipAdminClientService,
@@ -38,7 +39,6 @@ import {
   SpawnConfig,
   proxyService,
 } from '../../services'
-import { mkInstanceCache } from './mkInstanceCache'
 
 enum InstanceApiStatus {
   Starting = 'starting',
@@ -435,10 +435,10 @@ export const instanceService = mkSingleton(
       return api
     }
 
-    const cache = await mkInstanceCache(client.client)
     const getInstance = async (host: string) => {
+      const { getItem } = InstanceMirrorClient()
       dbg(`Searching cache for '${host}'`)
-      const item = cache.getItem(host)
+      const item = await getItem(host)
       if (item && item.region !== PH_EDGE_REGION_NAME()) {
         throw new Error(`${host} is not in the ${PH_EDGE_REGION_NAME()} region`)
       }
