@@ -9,11 +9,6 @@
     debug
 }
 
-# Redirect all HTTP traffic to HTTPS
-http:// {
-    redir https://{host}{uri}
-}
-
 (cors) {
 	@options {
         method OPTIONS
@@ -38,9 +33,7 @@ http:// {
 }
 
 *.{$PH_EDGE_REGION_NAME}.{$APEX_DOMAIN} {
-	tls {
-		dns cloudflare {$PH_WAF_CF_API_TOKEN}
-	}
+	tls {$SSL_CERT} {$SSL_KEY}
 
 	import cors
 	import healthcheck
@@ -51,14 +44,16 @@ http:// {
 	}
 
 	handle_errors {
-		respond "PocketHost edge {$PH_EDGE_REGION} is temporarily unavailable. Use Discord for fastest support: {$DISCORD_INVITE_URL}" 500
+		respond "PocketHost edge {$PH_EDGE_REGION_NAME} is temporarily unavailable. Use Discord for fastest support: {$DISCORD_INVITE_URL}" 500
 	}
 }
 
-https:// {
+{$PH_EDGE_REGION_NAME}.{$APEX_DOMAIN} {
+	tls {$SSL_CERT} {$SSL_KEY}
+
 	import healthcheck
 
 	handle {
-		respond "This is the {$PH_EDGE_REGION} edge of PocketHost. If you are trying to access an instance, use <instance>.{$PH_EDGE_REGION}.{$APEX_DOMAIN}" 403
+		respond "This is the {$PH_EDGE_REGION_NAME} edge of PocketHost. If you are trying to access an instance, use <instance>.{$PH_EDGE_REGION_NAME}.{$APEX_DOMAIN}" 403
 	}
 }

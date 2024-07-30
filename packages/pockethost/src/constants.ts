@@ -1,7 +1,7 @@
 import { forEach } from '@s-libs/micro-dash'
 import devcert from 'devcert'
 import envPaths from 'env-paths'
-import * as env from 'env-var'
+import { default as env } from 'env-var'
 import { mkdirSync, realpathSync, writeFileSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
@@ -157,12 +157,7 @@ export const SETTINGS = {
   PH_GOBOT_ROOT: mkPath(join(_PH_HOME, 'gobot'), { create: true }),
 
   PH_WAF_ROOT: mkPath(join(_PH_HOME, 'waf'), { create: true }),
-  PH_WAF_CADDY_CONFIG: mkPath(
-    join(
-      _PH_PROJECT_ROOT,
-      'src/cli/commands/FirewallCommand/ServeCommand/firewall/Caddyfile-edge',
-    ),
-  ),
+  PH_WAF_MODE: mkString(`edge`),
   PH_WAF_CF_API_TOKEN: mkString(''),
 }
 
@@ -296,7 +291,17 @@ export const PH_GOBOT_ROOT = (...paths: string[]) =>
 
 export const PH_WAF_ROOT = (...paths: string[]) =>
   join(settings().PH_WAF_ROOT, ...paths)
-export const PH_WAF_CADDY_CONFIG = () => settings().PH_WAF_CADDY_CONFIG
+export const PH_WAF_MODE = () => settings().PH_WAF_MODE
+export const PH_WAF_CADDY_CONFIG = () =>
+  env
+    .get(`PH_WAF_CADDY_CONFIG`)
+    .default(
+      join(
+        _PH_PROJECT_ROOT,
+        `src/cli/commands/FirewallCommand/ServeCommand/firewall/Caddyfile-${PH_WAF_MODE()}`,
+      ),
+    )
+    .asString()
 export const PH_WAF_CF_API_TOKEN = () => settings().PH_WAF_CF_API_TOKEN
 
 /** Helpers */
@@ -315,10 +320,12 @@ export const mkContainerHomePath = (...path: string[]) =>
 export const mkAppUrl = (path = '') => `${APP_URL()}${path}`
 export const mkBlogUrl = (path = '') => `${BLOG_URL()}${path}`
 export const mkDocUrl = (path = '') => mkBlogUrl(join('/docs', path))
-export const mkEdgeSubdomain = (subdomain: string) =>
-  `${settings().HTTP_PROTOCOL}//${subdomain}.${settings().EDGE_APEX_DOMAIN}`
-export const mkEdgeUrl = (subdomain: string, path = '') =>
-  `${mkEdgeSubdomain(subdomain)}${path}`
+export const mkInstanceCanonicalHostname = (instance: InstanceFields) =>
+  `${instance.id}.${instance.region}.${APEX_DOMAIN()}`
+export const mkInstanceHostname = (instance: InstanceFields) =>
+  `${instance.subdomain}.${instance.region}.${APEX_DOMAIN()}`
+export const mkInstanceUrl = (instance: InstanceFields, ...paths: string[]) =>
+  join(`${HTTP_PROTOCOL()}//${mkInstanceHostname(instance)}}`, ...paths)
 export const mkInstanceDataPath = (instanceId: string, ...path: string[]) =>
   join(settings().DATA_ROOT, instanceId, ...path)
 

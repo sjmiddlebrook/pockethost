@@ -1,6 +1,6 @@
 import 'express-async-errors'
 import { LoggerService } from '../../../../../common'
-import { WafService } from '../../../../../services/WafService'
+import { WafService } from './WafService'
 
 export const firewall = async () => {
   const { debug } = LoggerService().create(`proxy`)

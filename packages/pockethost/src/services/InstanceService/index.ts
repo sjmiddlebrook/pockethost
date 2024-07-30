@@ -9,13 +9,13 @@ import {
   ClientResponseError,
   DAEMON_PB_IDLE_TTL,
   DOCS_URL,
-  EDGE_APEX_DOMAIN,
   INSTANCE_APP_HOOK_DIR,
   INSTANCE_APP_MIGRATIONS_DIR,
   InstanceFields,
   InstanceId,
   InstanceStatus,
   LoggerService,
+  PH_EDGE_REGION_NAME,
   SingletonBaseConfig,
   UPGRADE_MODE,
   asyncExitHook,
@@ -24,7 +24,7 @@ import {
   mkAppUrl,
   mkContainerHomePath,
   mkDocUrl,
-  mkEdgeUrl,
+  mkInstanceUrl,
   mkInternalUrl,
   mkSingleton,
   now,
@@ -301,7 +301,7 @@ export const instanceService = mkSingleton(
           env: {
             ...instance.secrets,
             PH_APP_NAME: instance.subdomain,
-            PH_INSTANCE_URL: mkEdgeUrl(instance.subdomain),
+            PH_INSTANCE_URL: mkInstanceUrl(instance),
           },
           version,
         }
@@ -435,77 +435,14 @@ export const instanceService = mkSingleton(
       return api
     }
 
-    const getInstance = (() => {
-      const cache = mkInstanceCache(client.client)
-
-      return async (host: string) => {
-        if (cache.hasItem(host)) {
-          dbg(`cache hit ${host}`)
-          return cache.getItem(host)
-        }
-        dbg(`cache miss ${host}`)
-
-        {
-          dbg(`Trying to get instance by host: ${host}`)
-          const instance = await client
-            .getInstanceByCname(host)
-
-            .catch((e: ClientResponseError) => {
-              if (e.status !== 404) {
-                throw new Error(
-                  `Unexpected response ${stringify(e)} from mothership`,
-                )
-              }
-            })
-          if (instance) {
-            if (!instance.cname_active) {
-              throw new Error(`CNAME blocked.`)
-            }
-            dbg(`${host} is a cname`)
-            cache.setItem(instance)
-            return instance
-          }
-        }
-
-        const idOrSubdomain = host.replace(`.${EDGE_APEX_DOMAIN()}`, '')
-        {
-          dbg(`Trying to get instance by ID: ${idOrSubdomain}`)
-          const instance = await client
-            .getInstanceById(idOrSubdomain)
-            .catch((e: ClientResponseError) => {
-              if (e.status !== 404) {
-                throw new Error(
-                  `Unexpected response ${stringify(e)} from mothership`,
-                )
-              }
-            })
-          if (instance) {
-            dbg(`${idOrSubdomain} is an instance ID`)
-            cache.setItem(instance)
-            return instance
-          }
-        }
-        {
-          dbg(`Trying to get instance by subdomain: ${idOrSubdomain}`)
-          const instance = await client
-            .getInstanceBySubdomain(idOrSubdomain)
-            .catch((e: ClientResponseError) => {
-              if (e.status !== 404) {
-                throw new Error(
-                  `Unexpected response ${stringify(e)} from mothership`,
-                )
-              }
-            })
-          if (instance) {
-            dbg(`${idOrSubdomain} is a subdomain`)
-            cache.setItem(instance)
-            return instance
-          }
-        }
-        dbg(`${host} is none of: cname, id, subdomain`)
-        cache.blankItem(host)
+    const cache = await mkInstanceCache(client.client)
+    const getInstance = async (host: string) => {
+      const item = cache.getItem(host)
+      if (item && item.region !== PH_EDGE_REGION_NAME()) {
+        throw new Error(`${host} is not in the ${PH_EDGE_REGION_NAME()} region`)
       }
-    })()
+      return item
+    }
 
     ;(await proxyService()).use(async (req, res, next) => {
       const logger = LoggerService().create(`InstanceRequest`)

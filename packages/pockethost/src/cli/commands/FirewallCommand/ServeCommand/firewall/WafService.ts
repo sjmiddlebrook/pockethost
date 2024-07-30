@@ -1,5 +1,5 @@
-import { PH_WAF_CADDY_CONFIG, PH_WAF_ROOT, mkSingleton } from '../../core'
-import { GobotService } from './GobotService'
+import { PH_WAF_CADDY_CONFIG, mkSingleton } from '../../../../../../core'
+import { GobotService } from '../../../../../services/GobotService'
 
 export type Config = {}
 
@@ -8,7 +8,6 @@ export const WafService = mkSingleton(async (config: Partial<Config> = {}) => {
 
   const { gobot } = GobotService()
   const bot = await gobot(`caddy`, {
-    cachePath: PH_WAF_ROOT(`caddy-cache`),
     env: process.env,
   })
   const caddyPath = await bot.getBinaryFilePath()
