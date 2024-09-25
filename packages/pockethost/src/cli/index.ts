@@ -2,12 +2,7 @@
 
 import { program } from 'commander'
 import EventSource from 'eventsource'
-import {
-  LogLevelName,
-  LoggerService,
-  PH_PLUGINS,
-  loadPlugins,
-} from '../../core'
+import { LogLevelName, LoggerService } from '../../core'
 import { version } from '../../package.json'
 import { EdgeCommand } from './commands/EdgeCommand'
 import { FirewallCommand } from './commands/FirewallCommand'
@@ -27,10 +22,9 @@ export type GlobalOptions = {
 global.EventSource = EventSource
 
 export const main = async () => {
-  await loadPlugins(PH_PLUGINS())
-  program.name('pockethost').description('Multitenant PocketBase hosting')
-
   program
+    .name('pockethost')
+    .description('Multitenant PocketBase hosting')
     .addCommand(MothershipCommand())
     .addCommand(EdgeCommand())
     .addCommand(HealthCommand())

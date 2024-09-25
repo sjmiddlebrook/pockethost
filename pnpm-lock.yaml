@@ -335,9 +335,6 @@ importers:
 
   packages/pockethost:
     dependencies:
-      '@pockethost/plugin-console-logger':
-        specifier: workspace:*
-        version: link:../plugin-console-logger
       '@s-libs/micro-dash':
         specifier: ^16.1.0
         version: 16.1.0
