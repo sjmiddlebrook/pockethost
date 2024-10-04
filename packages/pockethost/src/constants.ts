@@ -11,6 +11,7 @@ import {
   InstanceId,
   SettingsHandlerFactory,
   SettingsService,
+  ioc,
 } from '../core'
 import {
   mkBoolean,
@@ -19,7 +20,7 @@ import {
   mkPath,
   mkString,
 } from './core/Settings'
-import { ioc, settings } from './core/ioc'
+import { settings } from './core/ioc'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -152,7 +153,7 @@ export type SettingsDefinition = {
 export const RegisterEnvSettingsService = () => {
   const _settings = SettingsService(SETTINGS)
 
-  ioc.register('settings', _settings)
+  ioc('settings', _settings)
 
   if (DEBUG()) {
     logConstants()
