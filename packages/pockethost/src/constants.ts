@@ -79,8 +79,6 @@ if (_IS_DEV) {
 }
 
 export const SETTINGS = {
-  PH_PLUGINS: mkCsvString([`@pockethost/plugin-console-logger`]),
-
   PH_HOME: mkPath(_PH_HOME, { create: true }),
   PH_PROJECT_ROOT: mkPath(PH_PROJECT_ROOT()),
 
@@ -163,8 +161,6 @@ export const RegisterEnvSettingsService = () => {
 }
 
 /** Accessors */
-export const PH_PLUGINS = () => settings().PH_PLUGINS
-
 export const PH_HOME = (...paths: string[]) =>
   join(settings().PH_HOME, ...paths)
 
@@ -281,7 +277,6 @@ export const mkInstanceDataPath = (instanceId: string, ...path: string[]) =>
 export const logConstants = () => {
   const vars = {
     DEBUG,
-    PH_PLUGINS,
     PH_HOME,
     PH_PROJECT_ROOT,
     HTTP_PROTOCOL,
